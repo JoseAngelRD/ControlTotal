@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox
+    xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="com.example.controltotal_proyecto.controller.PersonaFormController"
+    styleClass="dialog-root"
+    prefWidth="520"
+    spacing="0">
+
+    <!-- Cabecera -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <padding><Insets top="20" right="24" bottom="16" left="24"/></padding>
+        <VBox styleClass="dialog-icon,dialog-icon-purple">
+            <Label text="👤" styleClass="dialog-icon-text"/>
+        </VBox>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label text="Nueva Persona" styleClass="dialog-title" fx:id="dialogTitle"/>
+            <Label text="Complete los datos de la persona" styleClass="dialog-sub"/>
+        </VBox>
+    </HBox>
+
+    <Separator styleClass="dialog-separator"/>
+
+    <!-- Cuerpo -->
+    <VBox spacing="0">
+        <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+        <HBox spacing="14">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="NOMBRE *" styleClass="form-label"/>
+                <TextField fx:id="txtNombre" promptText="Nombre" styleClass="form-input"/>
+            </VBox>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="APELLIDOS *" styleClass="form-label"/>
+                <TextField fx:id="txtApellidos" promptText="Apellidos" styleClass="form-input"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="14">
+            <padding><Insets top="12" bottom="0"/></padding>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="NIF *" styleClass="form-label"/>
+                <TextField fx:id="txtNif" promptText="12345678A" styleClass="form-input"/>
+            </VBox>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="ESTADO" styleClass="form-label"/>
+                <ComboBox fx:id="comboEstado" styleClass="form-select" maxWidth="1.7976931348623157E308"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="14">
+            <padding><Insets top="12" bottom="0"/></padding>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="MÓVIL" styleClass="form-label"/>
+                <TextField fx:id="txtMovil" promptText="600 000 000" styleClass="form-input"/>
+            </VBox>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="EMAIL" styleClass="form-label"/>
+                <TextField fx:id="txtEmail" promptText="persona@mail.com" styleClass="form-input"/>
+            </VBox>
+        </HBox>
+
+        <Label text="RUTA GENERADA AUTOMÁTICAMENTE" styleClass="form-section-title">
+            <VBox.margin><Insets top="20"/></VBox.margin>
+        </Label>
+        <Separator styleClass="form-section-sep"/>
+        <Label fx:id="lblRuta" text="—" styleClass="ruta-preview">
+            <VBox.margin><Insets top="8"/></VBox.margin>
+        </Label>
+
+    </VBox>
+
+    <Separator styleClass="dialog-separator"/>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
+        <padding><Insets top="16" right="24" bottom="16" left="24"/></padding>
+        <Button text="Cancelar" styleClass="btn,btn-ghost" onAction="#onCancelar"/>
+        <Button text="💾  Guardar Persona" styleClass="btn,btn-primary" onAction="#onGuardar"/>
+    </HBox>
+
+</VBox>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox
+    xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="com.example.controltotal_proyecto.controller.EmpresaFormController"
+    styleClass="dialog-root"
+    prefWidth="720"
+    spacing="0">
+
+    <!-- ─── Cabecera del diálogo ──────────────────────────── -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <padding><Insets top="20" right="24" bottom="16" left="24"/></padding>
+        <VBox styleClass="dialog-icon,dialog-icon-blue">
+            <Label text="🏢" styleClass="dialog-icon-text"/>
+        </VBox>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label text="Nueva Empresa" styleClass="dialog-title" fx:id="dialogTitle"/>
+            <Label text="Complete los datos de la empresa" styleClass="dialog-sub"/>
+        </VBox>
+    </HBox>
+
+    <Separator styleClass="dialog-separator"/>
+
+    <!-- ─── Cuerpo scrollable ─────────────────────────────── -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="dialog-scroll">
+        <VBox spacing="0">
+            <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+            <!-- ══ DATOS DE LA EMPRESA ══ -->
+            <Label text="DATOS DE LA EMPRESA" styleClass="form-section-title"/>
+            <Separator styleClass="form-section-sep"/>
+
+            <HBox spacing="14">
+                <padding><Insets top="12" bottom="0"/></padding>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="NIF / CIF *" styleClass="form-label"/>
+                    <TextField fx:id="txtNifCif" promptText="B12345678" styleClass="form-input"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="FORMA SOCIAL *" styleClass="form-label"/>
+                    <ComboBox fx:id="comboFormaSocial" styleClass="form-select" maxWidth="1.7976931348623157E308"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="6">
+                <padding><Insets top="12" bottom="0"/></padding>
+                <Label text="DENOMINACIÓN SOCIAL *" styleClass="form-label"/>
+                <TextField fx:id="txtDenominacion" promptText="Ej: Muebles Alejandro SL" styleClass="form-input"/>
+            </VBox>
+
+            <HBox spacing="14">
+                <padding><Insets top="12" bottom="0"/></padding>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="ABREVIATURA  ✨ Auto" styleClass="form-label"/>
+                    <TextField fx:id="txtAbreviatura" promptText="Ej: MA" styleClass="form-input"/>
+                    <HBox styleClass="abr-preview-box" alignment="CENTER_LEFT" spacing="10">
+                        <padding><Insets top="6" right="12" bottom="6" left="12"/></padding>
+                        <Label text="Vista previa:" styleClass="form-hint"/>
+                        <Label fx:id="lblAbrPreview" text="—" styleClass="abr-preview"/>
+                    </HBox>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="SERVICIO *" styleClass="form-label"/>
+                    <ComboBox fx:id="comboServicio" styleClass="form-select" maxWidth="1.7976931348623157E308"/>
+                </VBox>
+            </HBox>
+
+            <HBox spacing="14">
+                <padding><Insets top="12" bottom="0"/></padding>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="DELEGACIÓN *" styleClass="form-label"/>
+                    <ComboBox fx:id="comboDelegacion" styleClass="form-select" maxWidth="1.7976931348623157E308"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="AGENTE CONTABLE *" styleClass="form-label"/>
+                    <ComboBox fx:id="comboAgente" styleClass="form-select" maxWidth="1.7976931348623157E308"/>
+                </VBox>
+            </HBox>
+
+            <HBox spacing="14">
+                <padding><Insets top="12" bottom="0"/></padding>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="ESTADO" styleClass="form-label"/>
+                    <ComboBox fx:id="comboEstado" styleClass="form-select" maxWidth="1.7976931348623157E308"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="RUTA EN SERVIDOR  ✨ Auto" styleClass="form-label"/>
+                    <Label fx:id="lblRutaPreview" text="—" styleClass="ruta-preview"/>
+                </VBox>
+            </HBox>
+
+            <!-- ══ PRIMER CLIENTE ASOCIADO ══ -->
+            <Label text="PRIMER CLIENTE ASOCIADO" styleClass="form-section-title">
+                <VBox.margin><Insets top="22"/></VBox.margin>
+            </Label>
+            <Separator styleClass="form-section-sep"/>
+
+            <HBox spacing="14">
+                <padding><Insets top="12" bottom="0"/></padding>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="NOMBRE" styleClass="form-label"/>
+                    <TextField fx:id="txtCNombre" promptText="Nombre" styleClass="form-input"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="APELLIDOS" styleClass="form-label"/>
+                    <TextField fx:id="txtCApellidos" promptText="Apellidos" styleClass="form-input"/>
+                </VBox>
+            </HBox>
+
+            <HBox spacing="14">
+                <padding><Insets top="12" bottom="0"/></padding>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="NIF CONTACTO" styleClass="form-label"/>
+                    <TextField fx:id="txtCNif" promptText="12345678A" styleClass="form-input"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="MÓVIL" styleClass="form-label"/>
+                    <TextField fx:id="txtCMovil" promptText="600 000 000" styleClass="form-input"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="EMAIL" styleClass="form-label"/>
+                    <TextField fx:id="txtCEmail" promptText="contacto@empresa.com" styleClass="form-input"/>
+                </VBox>
+            </HBox>
+
+            <!-- ══ PERSONAS RELACIONADAS ADICIONALES ══ -->
+            <Label text="PERSONAS RELACIONADAS ADICIONALES" styleClass="form-section-title">
+                <VBox.margin><Insets top="22"/></VBox.margin>
+            </Label>
+            <Separator styleClass="form-section-sep"/>
+
+            <VBox fx:id="vboxPersonas" spacing="8">
+                <padding><Insets top="10" bottom="0"/></padding>
+            </VBox>
+
+            <HBox spacing="8">
+                <padding><Insets top="8" bottom="0"/></padding>
+                <TextField fx:id="txtBuscarPersona"
+                           promptText="Buscar persona por nombre o NIF…"
+                           styleClass="form-input" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <VBox fx:id="vboxSugerencias" spacing="4">
+                <padding><Insets top="4" bottom="0"/></padding>
+            </VBox>
+
+            <!-- ══ ESTRUCTURA DE DIRECTORIOS (informativo) ══ -->
+            <Label text="ESTRUCTURA DE DIRECTORIOS" styleClass="form-section-title">
+                <VBox.margin><Insets top="22"/></VBox.margin>
+            </Label>
+            <Separator styleClass="form-section-sep"/>
+
+            <VBox styleClass="dir-preview" spacing="2">
+                <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+                <Label text="📁 [ABREVIATURA]/" styleClass="dir-line-root"/>
+                <Label text="   📁 Archivos Permanentes/" styleClass="dir-line"/>
+                <Label text="   📁 Auditoría/" styleClass="dir-line"/>
+                <Label text="   📁 Concursal/" styleClass="dir-line"/>
+                <Label text="   📁 Contable/" styleClass="dir-line"/>
+                <Label text="      📁 Balances/" styleClass="dir-line-sub"/>
+                <Label text="      📁 Bancos/" styleClass="dir-line-sub"/>
+                <Label text="      📁 Facturas/" styleClass="dir-line-sub"/>
+                <Label text="      📁 Pérdidas y Ganancias/" styleClass="dir-line-sub"/>
+                <Label text="      📁 Subvenciones/" styleClass="dir-line-sub"/>
+                <Label text="   📁 Fiscal/" styleClass="dir-line"/>
+                <Label text="   📁 Jurídico/" styleClass="dir-line"/>
+                <Label text="   📁 Laboral/" styleClass="dir-line"/>
+                <Label text="   📁 Mercantil/" styleClass="dir-line"/>
+                <Label text="   📁 Pericial/" styleClass="dir-line"/>
+                <Label text="   📁 Persona_relacionada/" styleClass="dir-line"/>
+                <Label text="      📁 Certificado electrónico/" styleClass="dir-line-sub"/>
+                <Label text="      📁 Fiscal/" styleClass="dir-line-sub"/>
+                <Label text="   📁 Log/" styleClass="dir-line"/>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+    <Separator styleClass="dialog-separator"/>
+
+    <!-- ─── Footer ─────────────────────────────────────────── -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
+        <padding><Insets top="16" right="24" bottom="16" left="24"/></padding>
+        <Button text="Cancelar" styleClass="btn,btn-ghost" onAction="#onCancelar"/>
+        <Button text="💾  Guardar Empresa" styleClass="btn,btn-primary" onAction="#onGuardar"/>
+    </HBox>
+
+</VBox>

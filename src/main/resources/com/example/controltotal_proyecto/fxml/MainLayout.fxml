@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane
+    xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="com.example.controltotal_proyecto.controller.MainController"
+    styleClass="root-pane"
+    prefWidth="1280"
+    prefHeight="800">
+
+    <top>
+        <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="0" right="20" bottom="0" left="20"/></padding>
+            <HBox styleClass="topbar-logo" alignment="CENTER_LEFT" spacing="8">
+                <Label text="✦" styleClass="topbar-logo-icon"/>
+                <Label text="AuditGest" styleClass="topbar-logo-text"/>
+            </HBox>
+            <Separator orientation="VERTICAL" styleClass="topbar-divider"/>
+            <Label text="Sistema de Gestión" styleClass="topbar-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Auditoría" styleClass="topbar-chip"/>
+            <Separator orientation="VERTICAL" styleClass="topbar-divider"/>
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="AU" styleClass="avatar"/>
+                <Label text="Administrador" styleClass="topbar-user-name"/>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <HBox>
+            <VBox styleClass="sidebar" minWidth="240" maxWidth="240">
+
+                <VBox styleClass="sidebar-section" spacing="2">
+                    <padding><Insets top="20" right="12" bottom="8" left="12"/></padding>
+                    <Label text="PRINCIPAL" styleClass="sidebar-label"/>
+                    <HBox fx:id="navDashboard" styleClass="nav-item" alignment="CENTER_LEFT"
+                          spacing="10" onMouseClicked="#onNavDashboard">
+                        <padding><Insets top="8" right="12" bottom="8" left="12"/></padding>
+                        <Label text="⊞" styleClass="nav-icon"/>
+                        <Label text="Dashboard" styleClass="nav-text" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+
+                <VBox styleClass="sidebar-section" spacing="2">
+                    <padding><Insets top="12" right="12" bottom="8" left="12"/></padding>
+                    <Label text="ENTIDADES" styleClass="sidebar-label"/>
+                    <HBox fx:id="navEmpresas" styleClass="nav-item" alignment="CENTER_LEFT"
+                          spacing="10" onMouseClicked="#onNavEmpresas">
+                        <padding><Insets top="8" right="12" bottom="8" left="12"/></padding>
+                        <Label text="🏢" styleClass="nav-icon"/>
+                        <Label text="Empresas" styleClass="nav-text" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="badgeEmpresas" text="0" styleClass="nav-badge"/>
+                    </HBox>
+                    <HBox fx:id="navPersonas" styleClass="nav-item" alignment="CENTER_LEFT"
+                          spacing="10" onMouseClicked="#onNavPersonas">
+                        <padding><Insets top="8" right="12" bottom="8" left="12"/></padding>
+                        <Label text="👥" styleClass="nav-icon"/>
+                        <Label text="Personas" styleClass="nav-text" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="badgePersonas" text="0" styleClass="nav-badge"/>
+                    </HBox>
+                </VBox>
+
+                <VBox styleClass="sidebar-section" spacing="2">
+                    <padding><Insets top="12" right="12" bottom="8" left="12"/></padding>
+                    <Label text="BUSCAR" styleClass="sidebar-label"/>
+                    <HBox fx:id="navBuscador" styleClass="nav-item" alignment="CENTER_LEFT"
+                          spacing="10" onMouseClicked="#onNavBuscador">
+                        <padding><Insets top="8" right="12" bottom="8" left="12"/></padding>
+                        <Label text="🔍" styleClass="nav-icon"/>
+                        <Label text="Buscador Avanzado" styleClass="nav-text"/>
+                    </HBox>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <VBox styleClass="sidebar-bottom">
+                    <padding><Insets top="16" right="12" bottom="16" left="12"/></padding>
+                    <VBox styleClass="sidebar-stats" spacing="8">
+                        <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                        <HBox>
+                            <Label text="Empresas activas" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="statActivas" text="0" styleClass="stat-value"/>
+                        </HBox>
+                        <HBox>
+                            <Label text="Total personas" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="statPersonas" text="0" styleClass="stat-value"/>
+                        </HBox>
+                        <HBox>
+                            <Label text="Relaciones" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="statRelaciones" text="0" styleClass="stat-value"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+            </VBox>
+
+            <StackPane fx:id="contentArea" HBox.hgrow="ALWAYS" styleClass="content-area"/>
+        </HBox>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox
+    xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="com.example.controltotal_proyecto.controller.PersonasController"
+    styleClass="view-root">
+
+    <VBox styleClass="page-header">
+        <padding><Insets top="24" right="28" bottom="0" left="28"/></padding>
+        <Label text="Personas" styleClass="page-title"/>
+        <Label text="Gestión del registro de personas de contacto" styleClass="page-sub"/>
+    </VBox>
+
+    <HBox styleClass="toolbar" alignment="CENTER_LEFT" spacing="10">
+        <padding><Insets top="16" right="28" bottom="0" left="28"/></padding>
+        <Button text="+ Nueva Persona" styleClass="btn,btn-primary" onAction="#onNuevaPersona"/>
+        <HBox styleClass="search-box" HBox.hgrow="ALWAYS" maxWidth="380" alignment="CENTER_LEFT" spacing="6">
+            <padding><Insets top="0" right="12" bottom="0" left="10"/></padding>
+            <Label text="🔍" styleClass="search-icon"/>
+            <TextField fx:id="searchField" promptText="Buscar por nombre, apellidos, NIF…"
+                       styleClass="search-input" HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="8">
+        <padding><Insets top="10" right="28" bottom="10" left="28"/></padding>
+        <Label text="Estado:" styleClass="filter-label"/>
+        <ToggleButton fx:id="chipTodos"    text="Todos"    styleClass="filter-chip"/>
+        <ToggleButton fx:id="chipActivo"   text="Activo"   styleClass="filter-chip"/>
+        <ToggleButton fx:id="chipInactivo" text="Inactivo" styleClass="filter-chip"/>
+    </HBox>
+
+    <StackPane VBox.vgrow="ALWAYS" styleClass="table-wrapper">
+        <padding><Insets top="0" right="28" bottom="28" left="28"/></padding>
+
+        <TableView fx:id="tablaPersonas" styleClass="data-table">
+            <columns>
+                <TableColumn fx:id="colNombre"    text="Nombre"               prefWidth="120"/>
+                <TableColumn fx:id="colApellidos" text="Apellidos"             prefWidth="160"/>
+                <TableColumn fx:id="colNif"       text="NIF"                   prefWidth="100"/>
+                <TableColumn fx:id="colMovil"     text="Móvil"                 prefWidth="120"/>
+                <TableColumn fx:id="colEmail"     text="Email"                 prefWidth="180"/>
+                <TableColumn fx:id="colEmpresas"  text="Empresas relacionadas" prefWidth="200" sortable="false"/>
+                <TableColumn fx:id="colEstado"    text="Estado"                prefWidth="90"/>
+                <TableColumn fx:id="colAcciones"  text="Acciones"              prefWidth="90" sortable="false"/>
+            </columns>
+            <placeholder><Label text=""/></placeholder>
+        </TableView>
+
+        <VBox fx:id="lblEmpty" alignment="CENTER" spacing="12" styleClass="empty-state"
+              visible="false" mouseTransparent="true">
+            <Label text="👥" style="-fx-font-size:48px;-fx-opacity:0.3;"/>
+            <Label text="No hay personas" styleClass="empty-title"/>
+            <Label text="Añade tu primera persona usando el botón «Nueva Persona»." styleClass="empty-sub"/>
+        </VBox>
+    </StackPane>
+
+</VBox>
