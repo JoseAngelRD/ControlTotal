@@ -64,7 +64,7 @@ public class EmpresaFormController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Poblar combos
-        comboFormaSocial.getItems().addAll("SL","SLL","SA","SAL","SDAD. COOP. AND.","CB");
+        comboFormaSocial.getItems().addAll("SL","SLL","SA","SAL","SDAD","COOP.AND.","CB");
         comboServicio.getItems().addAll(empService.getServicios());
         comboDelegacion.getItems().addAll(empService.getDelegaciones());
         comboAgente.getItems().addAll(empService.getAgentes());

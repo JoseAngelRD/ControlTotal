@@ -61,7 +61,7 @@ public class EmpresaService {
         empresa.setFechaAlta(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
         // 3. Crear directorios en disco
-        String rutaBase = Directorios.crearCarpetaEmpresa(empresa.getAbreviatura(), empresa.isActivo());
+        String rutaBase = Directorios.crearCarpetaEmpresa(empresa.getDenominacionSocial(),empresa.getFormaSocial(),empresa.isActivo());
         if (rutaBase != null) {
             empresa.setRutaDocumental(rutaBase);
             empresa.setRutaCertElectronico(rutaBase + "\\Persona_relacionada\\Certificado electrónico");

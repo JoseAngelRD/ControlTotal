@@ -15,8 +15,8 @@ import java.util.List;
 public class Directorios {
 
     /** Ruta raíz configurable. Cámbiala según el servidor donde se despliega. */
-    private static final String RUTA_RAIZ =
-        "C:\\Users\\JoseAngelRD\\Documents\\Programacion\\ControlTotal_JARD\\RutaDirectoriosCT";
+    private static final Path RUTA_RAIZ =
+            Path.of("C:","Control_Total");
 
     // ─── Subdirectorios estándar para EMPRESA ────────────────────────────────
     private static final List<String> SUBDIRS_EMPRESA = List.of(
@@ -56,9 +56,9 @@ public class Directorios {
      * @param esActivo       Si es true va a "activos", si no a "pasivos".
      * @return Ruta absoluta de la carpeta raíz creada, o null si hubo error.
      */
-    public static String crearCarpetaEmpresa(String nombreCarpeta, boolean esActivo) {
-        String subCarpeta = esActivo ? "activos" : "pasivos";
-        Path rutaBase = Paths.get(RUTA_RAIZ, subCarpeta, nombreCarpeta);
+    public static String crearCarpetaEmpresa(String nombreCarpeta, String FormaSocial, boolean esActivo) {
+        String subCarpeta = esActivo ? "Activo" : "Pasivo";
+        Path rutaBase = RUTA_RAIZ.resolve(subCarpeta,"Empresas",nombreCarpeta + " " + FormaSocial);
         return crearEstructura(rutaBase, SUBDIRS_EMPRESA);
     }
 
@@ -68,8 +68,10 @@ public class Directorios {
      * @param nif  NIF de la persona (nombre de la carpeta raíz).
      * @return Ruta absoluta de la carpeta raíz creada, o null si hubo error.
      */
-    public static String crearCarpetaPersona(String nif) {
-        Path rutaBase = Paths.get(RUTA_RAIZ, "personas", nif);
+
+    public static String crearCarpetaPersona(String nombrePersona, boolean esActivo) {
+        String subCarpeta = esActivo ? "Activo" : "Pasivo";
+        Path rutaBase = RUTA_RAIZ.resolve(subCarpeta,"Personas",nombrePersona);
         return crearEstructura(rutaBase, SUBDIRS_PERSONA);
     }
 
@@ -80,6 +82,8 @@ public class Directorios {
      * @param aActivos       true = mover a activos, false = mover a pasivos.
      * @return true si el movimiento tuvo éxito.
      */
+
+    /*
     public static boolean moverEmpresa(String nombreCarpeta, boolean aActivos) {
         String origen  = aActivos ? "pasivos" : "activos";
         String destino = aActivos ? "activos"  : "pasivos";
@@ -100,7 +104,7 @@ public class Directorios {
             System.err.println("❌ Error al mover empresa: " + e.getMessage());
             return false;
         }
-    }
+    }*/
 
     // ══════════════════════════════════════════════════════════════════════════
     // HELPERS PRIVADOS

@@ -30,11 +30,15 @@ public class PersonaFormController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        comboEstado.getItems().addAll("Activo", "Inactivo");
+        comboEstado.getItems().addAll("Activo", "Pasivo");
         comboEstado.setValue("Activo");
-        txtNif.textProperty().addListener((obs, o, n) ->
-            lblRuta.setText(n.isBlank() ? "—" : "servidor/personas/" + n.trim() + "/")
+        txtNombre.textProperty().addListener((obs, o, n) ->
+            lblRuta.setText(n.isBlank() ? "Y:/DocumOfi/"+ comboEstado.getValue() : "Y:/DocumOfi/" + comboEstado.getValue()+ "/" + n.trim() + "/")
         );
+/*
+        comboEstado.textProperty().addListener((obs, o, n) ->
+                lblRuta.setText(n.isBlank() ? "Y:/DocumOfi/"+ comboEstado.getValue() : "Y:/DocumOfi/" + comboEstado.getValue()+ "/" + n.trim() + "/")
+        );*/
     }
 
     public void init(Persona persona, Consumer<Persona> callback) {
