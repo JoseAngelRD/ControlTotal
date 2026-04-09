@@ -10,6 +10,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -81,6 +83,11 @@ public class EmpresaFormController implements Initializable {
 
         // Búsqueda de personas adicionales
         txtBuscarPersona.textProperty().addListener((obs, o, n) -> renderSugerencias(n));
+
+        txtDenominacion.textProperty().addListener((obs, o, n) -> actualizarRuta());
+        comboEstado.valueProperty().addListener((obs, o, n) -> actualizarRuta());
+        comboFormaSocial.valueProperty().addListener((obs, o, n) -> actualizarRuta());
+        actualizarRuta();
     }
 
     /**
@@ -123,7 +130,23 @@ public class EmpresaFormController implements Initializable {
             ? empService.generarAbreviatura(txtDenominacion.getText())
             : txtAbreviatura.getText();
         lblAbrPreview.setText(abr.isBlank() ? "—" : abr);
-        lblRutaPreview.setText(abr.isBlank() ? "—" : "servidor/empresas/" + abr + "/");
+    }
+
+    private void actualizarRuta() {
+        String estado = comboEstado.getValue();
+        String nombre = txtDenominacion.getText().trim();
+        String formaSocial = comboFormaSocial.getValue();
+
+        if (nombre.isBlank()) {
+            // No hay nombre: No ponemos la forma social, solo la ruta base
+            lblRutaPreview.setText("Y:/DocumOfi/" + estado + "/Empresas");
+        } else {
+            // Hay nombre: Preparamos la forma social con un espacio delante (si existe)
+            String sufijoForma = (formaSocial != null && !formaSocial.isBlank()) ? " " + formaSocial : "";
+
+            // Juntamos el nombre con su forma social (ej: "Muebles Alejandro" + " " + "SL")
+            lblRutaPreview.setText("Y:/DocumOfi/" + estado + "/Empresas/" + nombre + sufijoForma + "/");
+        }
     }
 
     // ─── Personas relacionadas ────────────────────────────────────────────────
@@ -158,7 +181,7 @@ public class EmpresaFormController implements Initializable {
         card.setPadding(new Insets(8, 12, 8, 12));
 
         Label avatar = new Label(
-            String.valueOf(p.getNombre().charAt(0)) + p.getApellidos().charAt(0)
+                String.valueOf(p.getNombre().charAt(0)) + p.getApellidos().charAt(0)
         );
         avatar.getStyleClass().add("person-avatar");
 
@@ -169,6 +192,21 @@ public class EmpresaFormController implements Initializable {
         meta.getStyleClass().add("person-meta");
         info.getChildren().addAll(nombre, meta);
 
+        // Espaciador para empujar los botones a la derecha
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // ─── NUEVO BOTÓN: Autocompletar ───
+        Button btnAuto = new Button("⭐ Principal");
+        btnAuto.getStyleClass().add("btn-ghost"); // O usa un estilo propio
+        btnAuto.setOnAction(e -> {
+            txtCNombre.setText(p.getNombre() != null ? p.getNombre() : "");
+            txtCApellidos.setText(p.getApellidos() != null ? p.getApellidos() : "");
+            txtCNif.setText(p.getNif() != null ? p.getNif() : "");
+            txtCMovil.setText(p.getContactoMovil() != null ? p.getContactoMovil() : "");
+            txtCEmail.setText(p.getContactoMail() != null ? p.getContactoMail() : "");
+        });
+
         Button btnRemove = new Button("✕");
         btnRemove.getStyleClass().add("btn-remove-person");
         btnRemove.setOnAction(e -> {
@@ -176,7 +214,7 @@ public class EmpresaFormController implements Initializable {
             vboxPersonas.getChildren().remove(card);
         });
 
-        card.getChildren().addAll(avatar, info, btnRemove);
+        card.getChildren().addAll(avatar, info, spacer, btnAuto, btnRemove);
         vboxPersonas.getChildren().add(card);
     }
 
@@ -193,30 +231,34 @@ public class EmpresaFormController implements Initializable {
         e.setFormaSocial(comboFormaSocial.getValue());
         e.setActivo(esActivo);
         e.setAbreviatura(txtAbreviatura.getText().isBlank()
-            ? empService.generarAbreviatura(e.getDenominacionSocial())
-            : txtAbreviatura.getText().trim());
+                ? empService.generarAbreviatura(e.getDenominacionSocial())
+                : txtAbreviatura.getText().trim());
         e.setServicio(comboServicio.getValue());
         e.setDelegacion(comboDelegacion.getValue());
         e.setAgenteContable(comboAgente.getValue());
 
-        // Construir primer contacto desde los campos del formulario
-        Persona primerContacto = null;
-        if (!txtCNif.getText().isBlank() && !txtCNombre.getText().isBlank()) {
-            primerContacto = new Persona();
-            primerContacto.setNif(txtCNif.getText().trim());
-            primerContacto.setNombre(txtCNombre.getText().trim());
-            primerContacto.setApellidos(txtCApellidos.getText().trim());
-            primerContacto.setContactoMovil(txtCMovil.getText().trim());
-            primerContacto.setContactoMail(txtCEmail.getText().trim());
-            primerContacto.setActivo(true);
-        }
+        // ─── GUARDAR DATOS DEL CONTACTO PRINCIPAL EN LA EMPRESA ───
+        // Combinamos nombre y apellidos para el contacto
+        String nombreCompletoContacto = (txtCNombre.getText().trim() + " " + txtCApellidos.getText().trim()).trim();
+        e.setContactoNombre(nombreCompletoContacto);
+        e.setContactoMovil(txtCMovil.getText().trim());
+        e.setContactoMail(txtCEmail.getText().trim());
 
         boolean ok;
         if (empresaEditar == null) {
-            ok = empService.crear(e, primerContacto);
+            // Pasamos 'null' como segundo parámetro para que no cree la Persona en la BD
+            ok = empService.crear(e, null);
+
+            // Vinculamos las personas añadidas a la lista con la nueva empresa
+            if (ok) {
+                for (Persona p : personasSeleccionadas) {
+                    DatabaseManager.vincularEmpresaPersona(e.getNifCif(), p.getNif());
+                }
+            }
         } else {
             ok = empService.actualizar(e);
-            // Sincronizar personas adicionales
+
+            // Sincronizar personas adicionales en edición
             List<String> actualNifs = DatabaseManager.obtenerPersonasDeEmpresa(e.getNifCif());
             for (Persona p : personasSeleccionadas) {
                 if (!actualNifs.contains(p.getNif())) {
