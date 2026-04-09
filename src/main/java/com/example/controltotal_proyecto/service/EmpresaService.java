@@ -64,11 +64,11 @@ public class EmpresaService {
         String rutaBase = Directorios.crearCarpetaEmpresa(empresa.getDenominacionSocial(),empresa.getFormaSocial(),empresa.isActivo());
         if (rutaBase != null) {
             empresa.setRutaDocumental(rutaBase);
-            empresa.setRutaCertElectronico(rutaBase + "\\Persona_relacionada\\Certificado electrónico");
+            empresa.setRutaCertElectronico(rutaBase + "\\Archivos Permanentes\\Cert. Electrónico");
             empresa.setRutaLog(rutaBase + "\\Log");
         }
 
-        // 4. Persistir empresa
+        // 4. Guardar empresa BD
         boolean ok = DatabaseManager.guardarEmpresa(empresa);
         if (!ok) return false;
 

@@ -20,7 +20,9 @@ public class Directorios {
 
     // ─── Subdirectorios estándar para EMPRESA ────────────────────────────────
     private static final List<String> SUBDIRS_EMPRESA = List.of(
-        "Archivos Permanentes",
+        "Archivos Permanentes\\Cert. Electrónico",
+            "Archivos Permanentes\\IAE",
+            "Archivos Permanentes\\Licencia Apertura",
         "Auditoría",
         "Concursal",
         "Contable\\Balances",
@@ -33,8 +35,6 @@ public class Directorios {
         "Laboral",
         "Mercantil",
         "Pericial",
-        "Persona_relacionada\\Certificado electrónico",
-        "Persona_relacionada\\Fiscal",
         "Log"
     );
 
@@ -56,6 +56,7 @@ public class Directorios {
      * @param esActivo       Si es true va a "activos", si no a "pasivos".
      * @return Ruta absoluta de la carpeta raíz creada, o null si hubo error.
      */
+
     public static String crearCarpetaEmpresa(String nombreCarpeta, String FormaSocial, boolean esActivo) {
         String subCarpeta = esActivo ? "Activo" : "Pasivo";
         Path rutaBase = RUTA_RAIZ.resolve(subCarpeta,"Empresas",nombreCarpeta + " " + FormaSocial);
@@ -65,7 +66,7 @@ public class Directorios {
     /**
      * Crea la carpeta de persona y su estructura básica de subdirectorios.
      *
-     * @param nif  NIF de la persona (nombre de la carpeta raíz).
+     * @param nombrePersona Nombre de la persona (nombre de la carpeta raíz).
      * @return Ruta absoluta de la carpeta raíz creada, o null si hubo error.
      */
 

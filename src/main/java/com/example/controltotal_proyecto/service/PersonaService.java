@@ -3,6 +3,7 @@ package com.example.controltotal_proyecto.service;
 import com.example.controltotal_proyecto.bd.DatabaseManager;
 import com.example.controltotal_proyecto.entities.Empresa;
 import com.example.controltotal_proyecto.entities.Persona;
+import com.example.controltotal_proyecto.util.Directorios;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,10 +38,14 @@ public class PersonaService {
 
     public boolean crear(Persona persona) {
         // Generar ruta documental automáticamente
-        String ruta = "servidor/personas/" + persona.getNif() + "/";
-        persona.setRutaDocumental(ruta);
-        persona.setRutaCertElectronico(ruta + "Certificado electrónico/");
-        persona.setRutaLog(ruta + "Log/");
+        String rutaBase = Directorios.crearCarpetaPersona(persona.getNombre(), persona.isActivo());
+        if (rutaBase != null) {
+            persona.setRutaDocumental(rutaBase);
+            persona.setRutaCertElectronico(rutaBase + "\\Certificado Electrónico");
+            persona.setRutaLog(rutaBase + "\\Log");
+        }
+
+        //Guardar Empresa BD
         return DatabaseManager.guardarPersona(persona);
     }
 

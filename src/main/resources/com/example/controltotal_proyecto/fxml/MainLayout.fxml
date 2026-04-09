@@ -21,18 +21,9 @@
         <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="16">
             <padding><Insets top="0" right="20" bottom="0" left="20"/></padding>
             <HBox styleClass="topbar-logo" alignment="CENTER_LEFT" spacing="8">
-                <Label text="✦" styleClass="topbar-logo-icon"/>
-                <Label text="AuditGest" styleClass="topbar-logo-text"/>
+                <Label text="Control Total" styleClass="topbar-logo-text"/>
             </HBox>
-            <Separator orientation="VERTICAL" styleClass="topbar-divider"/>
-            <Label text="Sistema de Gestión" styleClass="topbar-title"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label text="Auditoría" styleClass="topbar-chip"/>
-            <Separator orientation="VERTICAL" styleClass="topbar-divider"/>
-            <HBox alignment="CENTER_LEFT" spacing="8">
-                <Label text="AU" styleClass="avatar"/>
-                <Label text="Administrador" styleClass="topbar-user-name"/>
-            </HBox>
         </HBox>
     </top>
 

@@ -32,13 +32,21 @@ public class PersonaFormController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         comboEstado.getItems().addAll("Activo", "Pasivo");
         comboEstado.setValue("Activo");
-        txtNombre.textProperty().addListener((obs, o, n) ->
-            lblRuta.setText(n.isBlank() ? "Y:/DocumOfi/"+ comboEstado.getValue() : "Y:/DocumOfi/" + comboEstado.getValue()+ "/" + n.trim() + "/")
-        );
-/*
-        comboEstado.textProperty().addListener((obs, o, n) ->
-                lblRuta.setText(n.isBlank() ? "Y:/DocumOfi/"+ comboEstado.getValue() : "Y:/DocumOfi/" + comboEstado.getValue()+ "/" + n.trim() + "/")
-        );*/
+
+        txtNombre.textProperty().addListener((obs, o, n) -> actualizarRuta());
+        comboEstado.valueProperty().addListener((obs, o, n) -> actualizarRuta());
+        actualizarRuta();
+    }
+
+    private void actualizarRuta() {
+        String estado = comboEstado.getValue();
+        String nombre = txtNombre.getText().trim();
+
+        if (nombre.isBlank()) {
+            lblRuta.setText("Y:/DocumOfi/" + estado + "/");
+        } else {
+            lblRuta.setText("Y:/DocumOfi/" + estado + "/" + nombre + "/");
+        }
     }
 
     public void init(Persona persona, Consumer<Persona> callback) {
