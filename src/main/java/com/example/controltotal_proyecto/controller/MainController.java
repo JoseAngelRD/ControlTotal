@@ -30,11 +30,6 @@ public class MainController implements Initializable {
     @FXML private Label badgeEmpresas;
     @FXML private Label badgePersonas;
 
-    // ─── fx:id de Sidebar — stats ─────────────────────────────────────────────
-    @FXML private Label statActivas;
-    @FXML private Label statPersonas;
-    @FXML private Label statRelaciones;
-
     // ─── fx:id de Sidebar — nav items ────────────────────────────────────────
     @FXML private HBox navDashboard;
     @FXML private HBox navEmpresas;
@@ -122,16 +117,9 @@ public class MainController implements Initializable {
         List<Empresa>  emps  = DatabaseManager.obtenerTodasLasEmpresas();
         List<Persona>  pers  = DatabaseManager.obtenerTodasLasPersonas();
 
-        long activas    = emps.stream().filter(Empresa::isActivo).count();
-        long relaciones = emps.stream()
-            .flatMap(e -> DatabaseManager.obtenerPersonasDeEmpresa(e.getNifCif()).stream())
-            .distinct().count();
-
+        // Solo actualizamos los badges de arriba
         badgeEmpresas.setText(String.valueOf(emps.size()));
         badgePersonas.setText(String.valueOf(pers.size()));
-        statActivas.setText(String.valueOf(activas));
-        statPersonas.setText(String.valueOf(pers.size()));
-        statRelaciones.setText(String.valueOf(relaciones));
     }
 
     // ─── Interfaces para subcontroladores ────────────────────────────────────

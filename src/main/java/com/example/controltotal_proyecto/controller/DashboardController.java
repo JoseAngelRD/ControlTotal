@@ -3,147 +3,252 @@ package com.example.controltotal_proyecto.controller;
 import com.example.controltotal_proyecto.bd.DatabaseManager;
 import com.example.controltotal_proyecto.entities.Empresa;
 import com.example.controltotal_proyecto.entities.Persona;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.geometry.Pos;
+import javafx.scene.chart.PieChart;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
-/**
- * Controlador del Panel de Control (Dashboard).
- * Muestra KPIs, barras por servicio/delegación y listas recientes.
- */
 public class DashboardController implements Initializable,
-    MainController.RefreshableController, MainController.ChildController {
+        MainController.RefreshableController, MainController.ChildController {
 
-    // ─── KPI cards ───────────────────────────────────────────────────────────
     @FXML private Label lblTotalEmpresas;
     @FXML private Label lblActivasEmpresas;
+    @FXML private Label lblPasivasEmpresas;
     @FXML private Label lblTotalPersonas;
-    @FXML private Label lblRelaciones;
 
-    // ─── Barra de servicios ───────────────────────────────────────────────────
-    @FXML private VBox vboxServiciosBars;
+    @FXML private VBox  vboxServiciosBars;
+    @FXML private HBox  hboxServiciosAxis;
 
-    // ─── Barra de delegaciones ────────────────────────────────────────────────
-    @FXML private VBox vboxDelegBars;
+    @FXML private VBox  vboxDelegBars;
+    @FXML private HBox  hboxDelegAxis;
 
-    // ─── Listas ───────────────────────────────────────────────────────────────
-    @FXML private VBox vboxRecientes;
-    @FXML private VBox vboxTopPersonas;
+    @FXML private PieChart chartAgente;
+    @FXML private VBox     vboxAgenteLegend;
+
+    @FXML private TableView<Empresa> tableRecientes;
 
     private MainController mainController;
 
+    private static final List<String> PIE_COLORS = List.of(
+            "#4f7dff", "#a78bfa", "#3ecf8e", "#f5a623", "#f06060",
+            "#c9a84c", "#60c4f0", "#f07830"
+    );
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        inicializarTabla();
         refrescar();
     }
 
-    @Override public void onViewActivated()                      { refrescar(); }
-    @Override public void setMainController(MainController main) { this.mainController = main; }
+    @Override public void onViewActivated()                       { refrescar(); }
+    @Override public void setMainController(MainController main)  { this.mainController = main; }
 
-    // ─── Refrescar todos los datos ────────────────────────────────────────────
+    @SuppressWarnings("unchecked")
+    private void inicializarTabla() {
+        tableRecientes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-    private void refrescar() {
-        List<Empresa> emps  = DatabaseManager.obtenerTodasLasEmpresas();
-        List<Persona> pers  = DatabaseManager.obtenerTodasLasPersonas();
-        long activas = emps.stream().filter(Empresa::isActivo).count();
-        long rels = pers.stream()
-            .mapToLong(p -> DatabaseManager.obtenerEmpresasDePersona(p.getNif()).size())
-            .sum();
+        TableColumn<Empresa, String> colAbr = col("Abrvi",       "abreviatura",        60);
+        TableColumn<Empresa, String> colNom = col("Nombre",      "denominacionSocial", 140);
+        TableColumn<Empresa, String> colFor = col("Forma",       "formaSocial",        80); // Corregido
+        TableColumn<Empresa, String> colFec = col("Fecha Alta",  "fechaAlta",          100);
+        TableColumn<Empresa, String> colSrv = col("Servicio",    "servicio",            90);
+        TableColumn<Empresa, String> colAge = col("Agente",      "agenteContable",     110); // Corregido
+        TableColumn<Empresa, String> colDel = col("Delegación",  "delegacion",         110);
 
-        // KPIs
-        lblTotalEmpresas.setText(String.valueOf(emps.size()));
-        lblActivasEmpresas.setText(String.valueOf(activas));
-        lblTotalPersonas.setText(String.valueOf(pers.size()));
-        lblRelaciones.setText(String.valueOf(rels));
+        TableColumn<Empresa, Boolean> colEst = new TableColumn<>("Estado");
+        colEst.setCellValueFactory(new PropertyValueFactory<>("activo"));
+        colEst.setMinWidth(80);
+        colEst.setCellFactory(tc -> new TableCell<>() {
+            @Override protected void updateItem(Boolean activo, boolean empty) {
+                super.updateItem(activo, empty);
+                if (empty || activo == null) { setGraphic(null); return; }
+                String texto = activo ? "Activo" : "Pasivo";
+                Label badge = new Label(texto);
+                badge.getStyleClass().addAll("badge-estado",
+                        activo ? "badge-activo" : "badge-pasivo");
+                setGraphic(badge);
+                setText(null);
+            }
+        });
 
-        // Barras por servicio
-        List<String> servicios = List.of("Asesoría","Auditoría","Concursal","Pericial");
-        List<String> colorsSrv = List.of("#3ecf8e","#c9a84c","#f5a623","#a78bfa");
-        renderBars(vboxServiciosBars, servicios, colorsSrv,
-            s -> (int) emps.stream().filter(e -> s.equals(e.getServicio())).count(),
-            emps.isEmpty() ? 1 : emps.size());
-
-        // Barras por delegación
-        List<String> delegs   = List.of("Huelva","Lepe","Puebla de Guzmán");
-        List<String> colorsD  = List.of("#4f7dff","#f06060","#3ecf8e");
-        renderBars(vboxDelegBars, delegs, colorsD,
-            d -> (int) emps.stream().filter(e -> d.equals(e.getDelegacion())).count(),
-            emps.isEmpty() ? 1 : emps.size());
-
-        // Empresas recientes
-        vboxRecientes.getChildren().clear();
-        emps.stream()
-            .skip(Math.max(0, emps.size() - 5))
-            .sorted(Comparator.reverseOrder())
-            .forEach(e -> vboxRecientes.getChildren().add(crearMiniItem(
-                e.getDenominacionSocial(), e.getFechaAlta() != null ? e.getFechaAlta() : "—"
-            )));
-        if (vboxRecientes.getChildren().isEmpty())
-            vboxRecientes.getChildren().add(crearMiniItem("Sin empresas registradas", ""));
-
-        // Top personas
-        vboxTopPersonas.getChildren().clear();
-        pers.stream()
-            .map(p -> Map.entry(p, DatabaseManager.obtenerEmpresasDePersona(p.getNif()).size()))
-            .filter(e -> e.getValue() > 0)
-            .sorted((a, b) -> b.getValue() - a.getValue())
-            .limit(5)
-            .forEach(e -> vboxTopPersonas.getChildren().add(crearMiniItem(
-                e.getKey().getNombreCompleto(),
-                e.getValue() + " empresa" + (e.getValue() > 1 ? "s" : "")
-            )));
-        if (vboxTopPersonas.getChildren().isEmpty())
-            vboxTopPersonas.getChildren().add(crearMiniItem("Sin datos de relaciones", ""));
+        tableRecientes.getColumns().setAll(colAbr, colNom, colFor, colFec, colSrv, colAge, colDel, colEst);
+        tableRecientes.setPlaceholder(new Label("Sin empresas registradas"));
     }
 
-    // ─── Helpers UI ──────────────────────────────────────────────────────────
+    private TableColumn<Empresa, String> col(String titulo, String propiedad, double minW) {
+        TableColumn<Empresa, String> tc = new TableColumn<>(titulo);
+        tc.setCellValueFactory(new PropertyValueFactory<>(propiedad));
+        tc.setMinWidth(minW);
+        return tc;
+    }
 
-    /** Renderiza un conjunto de filas "etiqueta + barra + número" en un VBox. */
-    private void renderBars(VBox container, List<String> labels, List<String> colors,
-                            java.util.function.Function<String, Integer> countFn, int maxVal) {
+    private void refrescar() {
+        List<Empresa> emps = DatabaseManager.obtenerTodasLasEmpresas();
+        List<Persona> pers = DatabaseManager.obtenerTodasLasPersonas();
+
+        if (emps == null) emps = new ArrayList<>();
+        if (pers == null) pers = new ArrayList<>();
+
+        long activas = emps.stream().filter(Empresa::isActivo).count();
+        long pasivas  = emps.size() - activas;
+
+        lblTotalEmpresas.setText(String.valueOf(emps.size()));
+        lblActivasEmpresas.setText(String.valueOf(activas));
+        lblPasivasEmpresas.setText(String.valueOf(pasivas));
+        lblTotalPersonas.setText(String.valueOf(pers.size()));
+
+        // Barras Servicio
+        List<String> servicios  = List.of("Auditoría", "Asesoría", "Pericial", "Concursal");
+        List<String> colorsSrv  = List.of("#4f7dff", "#f5a623", "#3ecf8e", "#a78bfa");
+        final List<Empresa> finalEmps = emps;
+        int maxSrv = servicios.stream()
+                .mapToInt(s -> (int) finalEmps.stream().filter(e -> s.equalsIgnoreCase(e.getServicio())).count())
+                .max().orElse(1);
+        renderBars(vboxServiciosBars, hboxServiciosAxis, servicios, colorsSrv,
+                s -> (int) finalEmps.stream().filter(e -> s.equalsIgnoreCase(e.getServicio())).count(), maxSrv);
+
+        // Barras Delegación
+        List<String> delegs    = List.of("Huelva", "Lepe", "Puebla de Guzmán");
+        List<String> colorsDel = List.of("#4f7dff", "#f5a623", "#3ecf8e");
+        int maxDel = delegs.stream()
+                .mapToInt(d -> (int) finalEmps.stream().filter(e -> d.equalsIgnoreCase(e.getDelegacion())).count())
+                .max().orElse(1);
+        renderBars(vboxDelegBars, hboxDelegAxis, delegs, colorsDel,
+                d -> (int) finalEmps.stream().filter(e -> d.equalsIgnoreCase(e.getDelegacion())).count(), maxDel);
+
+        renderPieAgente(emps);
+
+        // Corregido: La ordenación de objetos ahora es explícita para evitar crasheos
+        List<Empresa> recientes = emps.stream()
+                .sorted(Comparator.comparing(Empresa::getDenominacionSocial).reversed())
+                .limit(8)
+                .collect(Collectors.toList());
+        tableRecientes.setItems(FXCollections.observableArrayList(recientes));
+    }
+
+    private void renderPieAgente(List<Empresa> emps) {
+        Map<String, Long> porAgente = emps.stream()
+                .filter(e -> e.getAgenteContable() != null && !e.getAgenteContable().isBlank())
+                .collect(Collectors.groupingBy(Empresa::getAgenteContable, Collectors.counting()));
+
+        List<Map.Entry<String, Long>> sorted = porAgente.entrySet().stream()
+                .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+                .collect(Collectors.toList());
+
+        javafx.collections.ObservableList<PieChart.Data> nuevosDatosGrafico = javafx.collections.FXCollections.observableArrayList();
+        List<javafx.scene.Node> nuevosNodosLeyenda = new ArrayList<>();
+
+        long total = sorted.stream().mapToLong(Map.Entry::getValue).sum();
+
+        if (sorted.isEmpty()) {
+            Label emptyLbl = new Label("Sin datos de agentes");
+            emptyLbl.getStyleClass().add("legend-label");
+            nuevosNodosLeyenda.add(emptyLbl);
+        } else {
+            for (int i = 0; i < sorted.size(); i++) {
+                Map.Entry<String, Long> entry = sorted.get(i);
+                String color  = PIE_COLORS.get(i % PIE_COLORS.size());
+                String nombre = entry.getKey();
+                long   cnt    = entry.getValue();
+
+                // Datos para el gráfico
+                String textoGrafico = String.format("%s (%d)", nombre, cnt);
+                PieChart.Data slice = new PieChart.Data(textoGrafico, cnt);
+
+                // Aplicar el color de forma segura
+                slice.nodeProperty().addListener((obs, o, node) -> {
+                    if (node != null) node.setStyle("-fx-pie-color: " + color + ";");
+                });
+                nuevosDatosGrafico.add(slice);
+
+                // Datos para la leyenda lateral
+                Circle dot = new Circle(7, javafx.scene.paint.Color.web(color));
+                double pct = total > 0 ? (cnt * 100.0 / total) : 0;
+                Label lbl  = new Label(String.format("%s (%.1f%%, %d)", nombre, pct, cnt));
+                lbl.getStyleClass().add("legend-label");
+
+                HBox row = new HBox(8, dot, lbl);
+                row.setAlignment(Pos.CENTER_LEFT);
+                nuevosNodosLeyenda.add(row);
+            }
+        }
+
+        // ── FIX NUCLEAR: Reemplazar el gráfico por uno nuevo ──
+        javafx.application.Platform.runLater(() -> {
+            // Obtenemos el contenedor padre donde está el gráfico (el HBox)
+            HBox parent = (HBox) chartAgente.getParent();
+            int index = parent.getChildren().indexOf(chartAgente);
+
+            // Creamos un gráfico desde cero
+            PieChart nuevoChart = new PieChart();
+            nuevoChart.setAnimated(false);
+            nuevoChart.setLegendVisible(false);
+
+            // ¡ACTIVAMOS LAS RAYAS AQUÍ!
+            nuevoChart.setLabelsVisible(true);
+            nuevoChart.setLabelLineLength(15);
+
+            nuevoChart.setPrefSize(350, 280);
+            HBox.setHgrow(nuevoChart, Priority.ALWAYS);
+
+            // Le metemos los datos
+            nuevoChart.setData(nuevosDatosGrafico);
+
+            // Reemplazamos el gráfico corrupto por el nuevo en la vista
+            if (index != -1) {
+                parent.getChildren().set(index, nuevoChart);
+            } else {
+                parent.getChildren().add(0, nuevoChart);
+            }
+
+            // Actualizamos la variable global de nuestro controlador
+            chartAgente = nuevoChart;
+
+            // Ponemos la leyenda
+            vboxAgenteLegend.getChildren().setAll(nuevosNodosLeyenda);
+        });
+    }
+
+    private void renderBars(VBox container, HBox axisBox,
+                            List<String> labels, List<String> colors,
+                            java.util.function.Function<String, Integer> countFn,
+                            int maxVal) {
         container.getChildren().clear();
+        final double BAR_MAX_PX = 250.0; // Ajustado para evitar desbordamiento
+
         for (int i = 0; i < labels.size(); i++) {
             String label = labels.get(i);
             String color = colors.get(i);
-            int count    = countFn.apply(label);
+            int    count = countFn.apply(label);
 
-            Label lbl = new Label(label);
-            lbl.getStyleClass().add("bar-label");
-            lbl.setMinWidth(100);
+            Label lblName = new Label(label);
+            lblName.getStyleClass().add("bar-label");
+            lblName.setMinWidth(140);
+            lblName.setMaxWidth(140);
 
-            ProgressBar bar = new ProgressBar((double) count / maxVal);
-            bar.getStyleClass().add("dash-bar");
-            bar.setStyle("-fx-accent: " + color + ";");
-            HBox.setHgrow(bar, Priority.ALWAYS);
+            double pxWidth = (maxVal > 0) ? (count / (double) maxVal) * BAR_MAX_PX : 0;
+            Region bar = new Region();
+            bar.setPrefHeight(18);
+            bar.setMinWidth(Math.max(pxWidth, 2));
+            bar.setPrefWidth(Math.max(pxWidth, 2));
+            bar.setStyle("-fx-background-color: " + color + "; -fx-background-radius: 3;");
 
-            Label num = new Label(String.valueOf(count));
-            num.getStyleClass().add("bar-count");
-            num.setMinWidth(28);
+            Label lblNum = new Label(String.valueOf(count));
+            lblNum.getStyleClass().add("bar-count");
 
-            HBox row = new HBox(10, lbl, bar, num);
-            row.getStyleClass().add("bar-row");
+            HBox row = new HBox(10, lblName, bar, lblNum);
+            row.setAlignment(Pos.CENTER_LEFT);
             container.getChildren().add(row);
         }
-    }
-
-    /** Crea una tarjeta simple de lista (nombre + metadato). */
-    private HBox crearMiniItem(String titulo, String meta) {
-        Label lblTitulo = new Label(titulo);
-        lblTitulo.getStyleClass().add("mini-item-label");
-        HBox.setHgrow(lblTitulo, Priority.ALWAYS);
-
-        Label lblMeta = new Label(meta);
-        lblMeta.getStyleClass().add("mini-item-meta");
-
-        HBox box = new HBox(10, lblTitulo, lblMeta);
-        box.getStyleClass().add("mini-item");
-        return box;
     }
 }

@@ -7,57 +7,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Gestor de base de datos — CRUD completo para Empresa y Persona.
- *
- * ESQUEMA REQUERIDO (ejecutar en MySQL si no existe):
- * ─────────────────────────────────────────────────────────────────────────────
- * CREATE TABLE IF NOT EXISTS empresas (
- *   nif_cif               VARCHAR(20)  PRIMARY KEY,
- *   denominacion_social   VARCHAR(200) NOT NULL,
- *   forma_social          VARCHAR(50),
- *   activo                TINYINT(1)   DEFAULT 1,
- *   abreviatura           VARCHAR(20),
- *   contacto_nombre       VARCHAR(100),
- *   contacto_movil        VARCHAR(20),
- *   contacto_mail         VARCHAR(100),
- *   agente_contable       VARCHAR(100),
- *   servicio              VARCHAR(50),
- *   delegacion            VARCHAR(80),
- *   fecha_alta            VARCHAR(20),
- *   ruta_documental       VARCHAR(500),
- *   ruta_cert_electronico VARCHAR(500),
- *   ruta_log              VARCHAR(500)
- * );
- *
- * CREATE TABLE IF NOT EXISTS personas (
- *   nif                   VARCHAR(20)  PRIMARY KEY,
- *   apellidos             VARCHAR(100) NOT NULL,
- *   nombre                VARCHAR(100) NOT NULL,
- *   activo                TINYINT(1)   DEFAULT 1,
- *   contacto_movil        VARCHAR(20),
- *   contacto_mail         VARCHAR(100),
- *   ruta_documental       VARCHAR(500),
- *   ruta_cert_electronico VARCHAR(500),
- *   ruta_log              VARCHAR(500)
- * );
- *
- * CREATE TABLE IF NOT EXISTS empresa_persona (
- *   empresa_nif  VARCHAR(20) NOT NULL,
- *   persona_nif  VARCHAR(20) NOT NULL,
- *   PRIMARY KEY (empresa_nif, persona_nif),
- *   FOREIGN KEY (empresa_nif) REFERENCES empresas(nif_cif) ON DELETE CASCADE,
- *   FOREIGN KEY (persona_nif) REFERENCES personas(nif)     ON DELETE CASCADE
- * );
- * ─────────────────────────────────────────────────────────────────────────────
- */
 public class DatabaseManager {
 
     // ══════════════════════════════════════════════════════════════════════════
     // EMPRESA — CRUD
     // ══════════════════════════════════════════════════════════════════════════
 
-    /** Inserta una nueva empresa. Devuelve true si tuvo éxito. */
     public static boolean guardarEmpresa(Empresa e) {
         String sql = "INSERT INTO empresas VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection c = ConexionBD.conectar();
@@ -72,14 +27,14 @@ public class DatabaseManager {
         }
     }
 
-    /** Actualiza una empresa existente. */
     public static boolean actualizarEmpresa(Empresa e) {
+        // La sentencia UPDATE se adapta al nuevo orden para mantener coherencia
         String sql = """
             UPDATE empresas SET
               denominacion_social=?, forma_social=?, activo=?, abreviatura=?,
-              contacto_nombre=?, contacto_movil=?, contacto_mail=?,
-              agente_contable=?, servicio=?, delegacion=?, fecha_alta=?,
-              ruta_documental=?, ruta_cert_electronico=?, ruta_log=?
+              contacto_nombre=?, contacto_movil=?, contacto_mail=?, agente_contable=?,
+              ruta_documental=?, ruta_cert_electronico=?, ruta_log=?,
+              servicio=?, delegacion=?, fecha_alta=?
             WHERE nif_cif=?
             """;
         try (Connection c = ConexionBD.conectar();
@@ -92,12 +47,12 @@ public class DatabaseManager {
             ps.setString(6,  e.getContactoMovil());
             ps.setString(7,  e.getContactoMail());
             ps.setString(8,  e.getAgenteContable());
-            ps.setString(9,  e.getServicio());
-            ps.setString(10, e.getDelegacion());
-            ps.setString(11, e.getFechaAlta());
-            ps.setString(12, e.getRutaDocumental());
-            ps.setString(13, e.getRutaCertElectronico());
-            ps.setString(14, e.getRutaLog());
+            ps.setString(9,  e.getRutaDocumental());
+            ps.setString(10, e.getRutaCertElectronico());
+            ps.setString(11, e.getRutaLog());
+            ps.setString(12, e.getServicio());
+            ps.setString(13, e.getDelegacion());
+            ps.setString(14, e.getFechaAlta());
             ps.setString(15, e.getNifCif());
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
@@ -106,7 +61,6 @@ public class DatabaseManager {
         }
     }
 
-    /** Elimina una empresa por NIF/CIF. */
     public static boolean eliminarEmpresa(String nifCif) {
         String sql = "DELETE FROM empresas WHERE nif_cif=?";
         try (Connection c = ConexionBD.conectar();
@@ -119,7 +73,6 @@ public class DatabaseManager {
         }
     }
 
-    /** Obtiene todas las empresas. */
     public static List<Empresa> obtenerTodasLasEmpresas() {
         List<Empresa> lista = new ArrayList<>();
         String sql = "SELECT * FROM empresas ORDER BY denominacion_social";
@@ -133,7 +86,6 @@ public class DatabaseManager {
         return lista;
     }
 
-    /** Busca una empresa por NIF/CIF. */
     public static Empresa obtenerEmpresaPorNif(String nifCif) {
         String sql = "SELECT * FROM empresas WHERE nif_cif=?";
         try (Connection c = ConexionBD.conectar();
@@ -151,7 +103,6 @@ public class DatabaseManager {
     // PERSONA — CRUD
     // ══════════════════════════════════════════════════════════════════════════
 
-    /** Inserta una nueva persona. */
     public static boolean guardarPersona(Persona p) {
         String sql = "INSERT INTO personas VALUES (?,?,?,?,?,?,?,?,?)";
         try (Connection c = ConexionBD.conectar();
@@ -166,7 +117,6 @@ public class DatabaseManager {
         }
     }
 
-    /** Actualiza una persona existente. */
     public static boolean actualizarPersona(Persona p) {
         String sql = """
             UPDATE personas SET
@@ -193,7 +143,6 @@ public class DatabaseManager {
         }
     }
 
-    /** Elimina una persona por NIF. */
     public static boolean eliminarPersona(String nif) {
         String sql = "DELETE FROM personas WHERE nif=?";
         try (Connection c = ConexionBD.conectar();
@@ -206,7 +155,6 @@ public class DatabaseManager {
         }
     }
 
-    /** Obtiene todas las personas. */
     public static List<Persona> obtenerTodasLasPersonas() {
         List<Persona> lista = new ArrayList<>();
         String sql = "SELECT * FROM personas ORDER BY apellidos, nombre";
@@ -220,7 +168,6 @@ public class DatabaseManager {
         return lista;
     }
 
-    /** Busca una persona por NIF. */
     public static Persona obtenerPersonaPorNif(String nif) {
         String sql = "SELECT * FROM personas WHERE nif=?";
         try (Connection c = ConexionBD.conectar();
@@ -238,7 +185,6 @@ public class DatabaseManager {
     // RELACIONES empresa_persona
     // ══════════════════════════════════════════════════════════════════════════
 
-    /** Vincula una empresa con una persona. */
     public static boolean vincularEmpresaPersona(String empresaNif, String personaNif) {
         String sql = "INSERT IGNORE INTO empresa_persona (empresa_nif, persona_nif) VALUES (?,?)";
         try (Connection c = ConexionBD.conectar();
@@ -252,7 +198,6 @@ public class DatabaseManager {
         }
     }
 
-    /** Desvincula una empresa de una persona. */
     public static boolean desvincularEmpresaPersona(String empresaNif, String personaNif) {
         String sql = "DELETE FROM empresa_persona WHERE empresa_nif=? AND persona_nif=?";
         try (Connection c = ConexionBD.conectar();
@@ -266,34 +211,39 @@ public class DatabaseManager {
         }
     }
 
-    /** Devuelve los NIF de personas vinculadas a una empresa. */
-    public static List<String> obtenerPersonasDeEmpresa(String empresaNif) {
-        List<String> nifs = new ArrayList<>();
-        String sql = "SELECT persona_nif FROM empresa_persona WHERE empresa_nif=?";
+    /** Devuelve los objetos Persona vinculados a una empresa. */
+    public static List<Persona> obtenerPersonasDeEmpresa(String empresaNif) {
+        List<Persona> personas = new ArrayList<>();
+        String sql = """
+            SELECT p.* FROM personas p
+            INNER JOIN empresa_persona ep ON p.nif = ep.persona_nif
+            WHERE ep.empresa_nif = ?
+            """;
         try (Connection c = ConexionBD.conectar();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, empresaNif);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) nifs.add(rs.getString("persona_nif"));
+            while (rs.next()) {
+                personas.add(mapPersona(rs)); // Mapeamos el objeto completo
+            }
         } catch (SQLException ex) {
-            System.err.println("❌ Error: " + ex.getMessage());
+            System.err.println("❌ Error al obtener personas de la empresa: " + ex.getMessage());
         }
-        return nifs;
+        return personas;
     }
 
-    /** Devuelve los NIF de empresas vinculadas a una persona. */
-    public static List<String> obtenerEmpresasDePersona(String personaNif) {
-        List<String> nifs = new ArrayList<>();
-        String sql = "SELECT empresa_nif FROM empresa_persona WHERE persona_nif=?";
+    public static List<Empresa> obtenerEmpresasDePersona(String personaNif) {
+        List<Empresa> empresas = new ArrayList<>();
+        String sql = "SELECT e.* FROM empresas e INNER JOIN empresa_persona ep ON e.nif_cif = ep.empresa_nif WHERE ep.persona_nif = ?";
         try (Connection c = ConexionBD.conectar();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, personaNif);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) nifs.add(rs.getString("empresa_nif"));
+            while (rs.next()) empresas.add(mapEmpresa(rs));
         } catch (SQLException ex) {
             System.err.println("❌ Error: " + ex.getMessage());
         }
-        return nifs;
+        return empresas;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -310,12 +260,16 @@ public class DatabaseManager {
         ps.setString(7,  e.getContactoMovil());
         ps.setString(8,  e.getContactoMail());
         ps.setString(9,  e.getAgenteContable());
-        ps.setString(10, e.getRutaDocumental());
-        ps.setString(11, e.getRutaCertElectronico());
-        ps.setString(12, e.getRutaLog());
-        ps.setString(13, e.getServicio());
-        ps.setString(14, e.getDelegacion());
-        ps.setString(15, e.getFechaAlta());
+        ps.setString(10, e.getRutaDocumental());         // <-- Mapeado a col 10
+        ps.setString(11, e.getRutaCertElectronico());    // <-- Mapeado a col 11
+        ps.setString(12, e.getRutaLog());                // <-- Mapeado a col 12
+        ps.setString(13, e.getServicio());               // <-- Mapeado a col 13
+        ps.setString(14, e.getDelegacion());             // <-- Mapeado a col 14
+        if (e.getFechaAlta() == null || e.getFechaAlta().isBlank()) {
+            ps.setNull(15, java.sql.Types.DATE);
+        } else {
+            ps.setString(15, e.getFechaAlta());          // <-- Mapeado a col 15
+        }
     }
 
     private static void setPersonaParams(PreparedStatement ps, Persona p) throws SQLException {

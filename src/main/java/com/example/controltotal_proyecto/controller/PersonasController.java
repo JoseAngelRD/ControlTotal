@@ -32,7 +32,7 @@ import java.util.ResourceBundle;
  * Controlador de la vista "Personas".
  */
 public class PersonasController implements Initializable,
-    MainController.RefreshableController, MainController.ChildController {
+        MainController.RefreshableController, MainController.ChildController {
 
     // ─── Tabla ────────────────────────────────────────────────────────────────
     @FXML private TableView<Persona>          tablaPersonas;
@@ -80,22 +80,25 @@ public class PersonasController implements Initializable,
         colMovil.setCellValueFactory(new PropertyValueFactory<>("contactoMovil"));
         colEmail.setCellValueFactory(new PropertyValueFactory<>("contactoMail"));
 
-        // Empresas relacionadas — lista de tags
+        // Empresas relacionadas — lista de tags (CORREGIDO PARA USAR OBJETOS EMPRESA)
         colEmpresas.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Void v, boolean empty) {
                 super.updateItem(v, empty);
                 if (empty) { setGraphic(null); return; }
                 Persona p = getTableView().getItems().get(getIndex());
                 FlowPane flow = new FlowPane(4, 4);
-                List<String> nifs = DatabaseManager.obtenerEmpresasDePersona(p.getNif());
-                if (nifs.isEmpty()) {
+
+                List<Empresa> empresasVinculadas = DatabaseManager.obtenerEmpresasDePersona(p.getNif());
+
+                if (empresasVinculadas.isEmpty()) {
                     Label lbl = new Label("Sin empresas");
                     lbl.getStyleClass().add("text-muted");
                     flow.getChildren().add(lbl);
                 } else {
-                    nifs.forEach(nif -> {
-                        Empresa e = DatabaseManager.obtenerEmpresaPorNif(nif);
-                        if (e != null) flow.getChildren().add(BadgeFactory.empresaTag(e.getAbreviatura()));
+                    empresasVinculadas.forEach(e -> {
+                        if (e != null && e.getAbreviatura() != null) {
+                            flow.getChildren().add(BadgeFactory.empresaTag(e.getAbreviatura()));
+                        }
                     });
                 }
                 setGraphic(flow);
@@ -167,14 +170,14 @@ public class PersonasController implements Initializable,
         filtered.setPredicate(p -> {
             String q = searchField.getText().toLowerCase();
             boolean mQ = q.isBlank() ||
-                p.getNombreCompleto().toLowerCase().contains(q) ||
-                safe(p.getNif()).contains(q) ||
-                safe(p.getContactoMail()).contains(q);
+                    p.getNombreCompleto().toLowerCase().contains(q) ||
+                    safe(p.getNif()).contains(q) ||
+                    safe(p.getContactoMail()).contains(q);
 
             ToggleButton sel = (ToggleButton) chipTodos.getToggleGroup().getSelectedToggle();
             boolean mE = sel == null || sel == chipTodos ||
-                (sel == chipActivo && p.isActivo()) ||
-                (sel == chipInactivo && !p.isActivo());
+                    (sel == chipActivo && p.isActivo()) ||
+                    (sel == chipInactivo && !p.isActivo());
 
             return mQ && mE;
         });
@@ -196,7 +199,7 @@ public class PersonasController implements Initializable,
     private void abrirFormulario(Persona personaEditar) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/example/controltotal_proyecto/fxml/dialogs/PersonaFormDialog.fxml")
+                    getClass().getResource("/com/example/controltotal_proyecto/fxml/dialogs/PersonaFormDialog.fxml")
             );
             Parent root = loader.load();
             PersonaFormController ctrl = loader.getController();
@@ -210,7 +213,7 @@ public class PersonasController implements Initializable,
             dialog.setTitle(personaEditar == null ? "Nueva Persona" : "Editar Persona");
             dialog.setScene(new Scene(root));
             dialog.getScene().getStylesheets().add(
-                getClass().getResource("/com/example/controltotal_proyecto/css/styles.css").toExternalForm()
+                    getClass().getResource("/com/example/controltotal_proyecto/css/styles.css").toExternalForm()
             );
             dialog.setMinWidth(520);
             dialog.show();

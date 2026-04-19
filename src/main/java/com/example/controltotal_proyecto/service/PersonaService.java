@@ -27,11 +27,7 @@ public class PersonaService {
      * Devuelve las empresas a las que está vinculada esta persona.
      */
     public List<Empresa> obtenerEmpresasDePersona(String personaNif) {
-        List<String> empNifs = DatabaseManager.obtenerEmpresasDePersona(personaNif);
-        return empNifs.stream()
-            .map(DatabaseManager::obtenerEmpresaPorNif)
-            .filter(e -> e != null)
-            .collect(Collectors.toList());
+        return DatabaseManager.obtenerEmpresasDePersona(personaNif);
     }
 
     // ─── Alta ─────────────────────────────────────────────────────────────────
@@ -45,7 +41,7 @@ public class PersonaService {
             persona.setRutaLog(rutaBase + "\\Log");
         }
 
-        //Guardar Empresa BD
+        // Guardar Persona BD
         return DatabaseManager.guardarPersona(persona);
     }
 

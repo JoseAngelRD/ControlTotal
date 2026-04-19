@@ -19,7 +19,7 @@ public class Main extends Application {
             getClass().getResource("/com/example/controltotal_proyecto/fxml/MainLayout.fxml")
         );
 
-        Scene scene = new Scene(loader.load(), 1680, 800);
+        Scene scene = new Scene(loader.load(), 1680, 950);
         scene.getStylesheets().add(
             Objects.requireNonNull(
                 getClass().getResource("/com/example/controltotal_proyecto/css/styles.css")

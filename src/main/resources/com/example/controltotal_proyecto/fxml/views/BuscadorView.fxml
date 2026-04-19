@@ -12,20 +12,23 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox
-    xmlns="http://javafx.com/javafx"
-    xmlns:fx="http://javafx.com/fxml"
-    fx:controller="com.example.controltotal_proyecto.controller.BuscadorController"
-    styleClass="view-root">
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="com.example.controltotal_proyecto.controller.BuscadorController"
+        styleClass="view-root">
 
+    <!-- ══ CABECERA ══════════════════════════════════════════════════════════ -->
     <VBox styleClass="page-header">
         <padding><Insets top="24" right="28" bottom="0" left="28"/></padding>
         <Label text="Buscador Avanzado" styleClass="page-title"/>
         <Label text="Búsqueda combinada de empresas y personas" styleClass="page-sub"/>
     </VBox>
 
+    <!-- ══ BARRA DE BÚSQUEDA ═════════════════════════════════════════════════ -->
     <HBox styleClass="toolbar" alignment="CENTER_LEFT" spacing="10">
         <padding><Insets top="16" right="28" bottom="0" left="28"/></padding>
-        <HBox styleClass="search-box" maxWidth="500" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="6">
+        <HBox styleClass="search-box" maxWidth="500" HBox.hgrow="ALWAYS"
+              alignment="CENTER_LEFT" spacing="6">
             <padding><Insets top="0" right="12" bottom="0" left="10"/></padding>
             <Label text="🔍" styleClass="search-icon"/>
             <TextField fx:id="searchField"
@@ -36,18 +39,30 @@
         <Region HBox.hgrow="ALWAYS"/>
     </HBox>
 
+    <!-- ══ FILTROS — FILA 1: tipo + chips ════════════════════════════════════ -->
     <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="8">
-        <padding><Insets top="10" right="28" bottom="10" left="28"/></padding>
+        <padding><Insets top="10" right="28" bottom="4" left="28"/></padding>
         <Label text="Tipo:" styleClass="filter-label"/>
         <ToggleButton fx:id="chipTodos"    text="Todos"    styleClass="filter-chip"/>
         <ToggleButton fx:id="chipEmpresas" text="Empresas" styleClass="filter-chip"/>
         <ToggleButton fx:id="chipPersonas" text="Personas" styleClass="filter-chip"/>
-        <Label text="Servicio:" styleClass="filter-label"/>
-        <ComboBox fx:id="comboServicio"   styleClass="filter-select" prefWidth="130"/>
-        <ComboBox fx:id="comboDelegacion" styleClass="filter-select" prefWidth="180"/>
-        <ComboBox fx:id="comboEstado"     styleClass="filter-select" prefWidth="160"/>
+        <Region HBox.hgrow="ALWAYS"/>
     </HBox>
 
+    <!-- ══ FILTROS — FILA 2: combos ══════════════════════════════════════════ -->
+    <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="8">
+        <padding><Insets top="4" right="28" bottom="10" left="28"/></padding>
+        <Label text="Servicio:" styleClass="filter-label"/>
+        <ComboBox fx:id="comboServicio"    styleClass="filter-select" prefWidth="130"/>
+        <Label text="Delegación:" styleClass="filter-label"/>
+        <ComboBox fx:id="comboDelegacion"  styleClass="filter-select" prefWidth="160"/>
+        <Label text="Estado:" styleClass="filter-label"/>
+        <ComboBox fx:id="comboEstado"      styleClass="filter-select" prefWidth="150"/>
+        <Label text="Agente:" styleClass="filter-label"/>
+        <ComboBox fx:id="comboAgente"      styleClass="filter-select" prefWidth="180"/>
+    </HBox>
+
+    <!-- ══ RESULTADOS ════════════════════════════════════════════════════════ -->
     <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="results-scroll">
         <VBox fx:id="resultContainer" spacing="6" styleClass="result-container">
             <padding><Insets top="14" right="28" bottom="28" left="28"/></padding>

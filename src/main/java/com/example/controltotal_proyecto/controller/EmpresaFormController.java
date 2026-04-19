@@ -110,15 +110,16 @@ public class EmpresaFormController implements Initializable {
             comboAgente.setValue(empresa.getAgenteContable());
             comboEstado.setValue(empresa.isActivo() ? "Activo" : "Pasivo");
 
-            // Cargar personas vinculadas
-            List<String> nifs = DatabaseManager.obtenerPersonasDeEmpresa(empresa.getNifCif());
-            nifs.forEach(nif -> {
-                Persona p = DatabaseManager.obtenerPersonaPorNif(nif);
+            // ─── CORRECCIÓN AQUÍ ───
+            // Cargar personas vinculadas (ahora devuelve List<Persona> directamente)
+            List<Persona> personasVinculadas = DatabaseManager.obtenerPersonasDeEmpresa(empresa.getNifCif());
+            personasVinculadas.forEach(p -> {
                 if (p != null) {
                     personasSeleccionadas.add(p);
                     agregarTarjetaPersona(p);
                 }
             });
+            // ─────────────────────────
         }
         actualizarPreviews();
     }
@@ -127,8 +128,8 @@ public class EmpresaFormController implements Initializable {
 
     private void actualizarPreviews() {
         String abr = txtAbreviatura.getText().isBlank()
-            ? empService.generarAbreviatura(txtDenominacion.getText())
-            : txtAbreviatura.getText();
+                ? empService.generarAbreviatura(txtDenominacion.getText())
+                : txtAbreviatura.getText();
         lblAbrPreview.setText(abr.isBlank() ? "—" : abr);
     }
 
@@ -157,22 +158,22 @@ public class EmpresaFormController implements Initializable {
 
         String q = query.toLowerCase();
         perService.obtenerTodas().stream()
-            .filter(p -> personasSeleccionadas.stream()
-                .noneMatch(s -> s.getNif().equals(p.getNif())))
-            .filter(p -> p.getNombreCompleto().toLowerCase().contains(q)
-                      || p.getNif().toLowerCase().contains(q))
-            .limit(6)
-            .forEach(p -> {
-                Label lbl = new Label(p.getNombreCompleto() + " · " + p.getNif());
-                lbl.getStyleClass().add("sugerencia-item");
-                lbl.setOnMouseClicked(e -> {
-                    personasSeleccionadas.add(p);
-                    agregarTarjetaPersona(p);
-                    txtBuscarPersona.clear();
-                    vboxSugerencias.getChildren().clear();
+                .filter(p -> personasSeleccionadas.stream()
+                        .noneMatch(s -> s.getNif().equals(p.getNif())))
+                .filter(p -> p.getNombreCompleto().toLowerCase().contains(q)
+                        || p.getNif().toLowerCase().contains(q))
+                .limit(6)
+                .forEach(p -> {
+                    Label lbl = new Label(p.getNombreCompleto() + " · " + p.getNif());
+                    lbl.getStyleClass().add("sugerencia-item");
+                    lbl.setOnMouseClicked(e -> {
+                        personasSeleccionadas.add(p);
+                        agregarTarjetaPersona(p);
+                        txtBuscarPersona.clear();
+                        vboxSugerencias.getChildren().clear();
+                    });
+                    vboxSugerencias.getChildren().add(lbl);
                 });
-                vboxSugerencias.getChildren().add(lbl);
-            });
     }
 
     private void agregarTarjetaPersona(Persona p) {
@@ -258,13 +259,19 @@ public class EmpresaFormController implements Initializable {
         } else {
             ok = empService.actualizar(e);
 
+            // ─── CORRECCIÓN AQUÍ ───
             // Sincronizar personas adicionales en edición
-            List<String> actualNifs = DatabaseManager.obtenerPersonasDeEmpresa(e.getNifCif());
+            List<Persona> actualesBD = DatabaseManager.obtenerPersonasDeEmpresa(e.getNifCif());
+
+            // Creamos una lista de NIFs rápida para comparar
+            List<String> nifsActuales = actualesBD.stream().map(Persona::getNif).toList();
+
             for (Persona p : personasSeleccionadas) {
-                if (!actualNifs.contains(p.getNif())) {
+                if (!nifsActuales.contains(p.getNif())) {
                     DatabaseManager.vincularEmpresaPersona(e.getNifCif(), p.getNif());
                 }
             }
+            // ─────────────────────────
         }
 
         if (ok) {

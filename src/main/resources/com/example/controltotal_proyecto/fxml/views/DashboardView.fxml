@@ -1,30 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox
-    xmlns="http://javafx.com/javafx"
-    xmlns:fx="http://javafx.com/fxml"
-    fx:controller="com.example.controltotal_proyecto.controller.DashboardController"
-    styleClass="view-root">
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="com.example.controltotal_proyecto.controller.DashboardController"
+        styleClass="view-root">
 
+    <!-- ══ CABECERA ══════════════════════════════════════════════════════════ -->
     <VBox styleClass="page-header">
-        <padding><Insets top="24" right="28" bottom="0" left="28"/></padding>
-        <Label text="Panel de Control" styleClass="page-title"/>
-        <Label text="Resumen general del sistema de auditoría" styleClass="page-sub"/>
+        <padding><Insets top="28" right="32" bottom="12" left="32"/></padding>
+        <Label text="RESUMEN EJECUTIVO DEL SISTEMA" styleClass="page-title,dash-main-title"/>
+        <Label text="Estadísticas generales del sistema de auditoría y asesoría" styleClass="page-sub,dash-main-sub"/>
     </VBox>
 
     <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="dash-scroll">
-        <VBox spacing="16" styleClass="dash-content">
-            <padding><Insets top="20" right="28" bottom="28" left="28"/></padding>
+        <VBox spacing="20" styleClass="dash-content">
+            <padding><Insets top="20" right="32" bottom="32" left="32"/></padding>
 
-            <!-- KPI Cards -->
-            <GridPane hgap="14" vgap="14">
+            <!-- ── KPI CARDS ─────────────────────────────────────────────── -->
+            <GridPane hgap="16" vgap="16">
                 <columnConstraints>
                     <ColumnConstraints hgrow="ALWAYS" percentWidth="25"/>
                     <ColumnConstraints hgrow="ALWAYS" percentWidth="25"/>
@@ -32,64 +37,105 @@
                     <ColumnConstraints hgrow="ALWAYS" percentWidth="25"/>
                 </columnConstraints>
 
-                <VBox styleClass="stat-card,stat-card-blue" spacing="6" GridPane.columnIndex="0">
-                    <padding><Insets top="18" right="20" bottom="18" left="20"/></padding>
-                    <Label text="TOTAL EMPRESAS" styleClass="stat-card-label"/>
-                    <Label fx:id="lblTotalEmpresas" text="0" styleClass="stat-card-value"/>
-                    <Label text="en el sistema" styleClass="stat-card-sub"/>
+                <!-- Total Empresas -->
+                <VBox styleClass="kpi-card,kpi-card-blue" spacing="4" GridPane.columnIndex="0">
+                    <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                    <HBox spacing="14" alignment="CENTER_LEFT">
+                        <Label text="🏢" styleClass="kpi-icon"/>
+                        <Label fx:id="lblTotalEmpresas" text="0" styleClass="kpi-value"/>
+                    </HBox>
+                    <Label text="Empresas Totales" styleClass="kpi-label"/>
                 </VBox>
 
-                <VBox styleClass="stat-card,stat-card-green" spacing="6" GridPane.columnIndex="1">
-                    <padding><Insets top="18" right="20" bottom="18" left="20"/></padding>
-                    <Label text="EMPRESAS ACTIVAS" styleClass="stat-card-label"/>
-                    <Label fx:id="lblActivasEmpresas" text="0" styleClass="stat-card-value"/>
-                    <Label text="en activo" styleClass="stat-card-sub"/>
+                <!-- Empresas Activas -->
+                <VBox styleClass="kpi-card,kpi-card-green" spacing="4" GridPane.columnIndex="1">
+                    <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                    <HBox spacing="14" alignment="CENTER_LEFT">
+                        <Label text="🏢" styleClass="kpi-icon"/>
+                        <Label fx:id="lblActivasEmpresas" text="0" styleClass="kpi-value"/>
+                        <Label text="●" styleClass="kpi-dot-green"/>
+                    </HBox>
+                    <Label text="Empresas Activas" styleClass="kpi-label"/>
                 </VBox>
 
-                <VBox styleClass="stat-card,stat-card-gold" spacing="6" GridPane.columnIndex="2">
-                    <padding><Insets top="18" right="20" bottom="18" left="20"/></padding>
-                    <Label text="TOTAL PERSONAS" styleClass="stat-card-label"/>
-                    <Label fx:id="lblTotalPersonas" text="0" styleClass="stat-card-value"/>
-                    <Label text="contactos registrados" styleClass="stat-card-sub"/>
+                <!-- Empresas Pasivas -->
+                <VBox styleClass="kpi-card,kpi-card-orange" spacing="4" GridPane.columnIndex="2">
+                    <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                    <HBox spacing="14" alignment="CENTER_LEFT">
+                        <Label text="🏢" styleClass="kpi-icon"/>
+                        <Label fx:id="lblPasivasEmpresas" text="0" styleClass="kpi-value"/>
+                    </HBox>
+                    <Label text="Empresas Pasivas" styleClass="kpi-label"/>
                 </VBox>
 
-                <VBox styleClass="stat-card,stat-card-purple" spacing="6" GridPane.columnIndex="3">
-                    <padding><Insets top="18" right="20" bottom="18" left="20"/></padding>
-                    <Label text="RELACIONES" styleClass="stat-card-label"/>
-                    <Label fx:id="lblRelaciones" text="0" styleClass="stat-card-value"/>
-                    <Label text="empresa-persona" styleClass="stat-card-sub"/>
+                <!-- Personas -->
+                <VBox styleClass="kpi-card,kpi-card-purple" spacing="4" GridPane.columnIndex="3">
+                    <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                    <HBox spacing="14" alignment="CENTER_LEFT">
+                        <Label text="👤" styleClass="kpi-icon"/>
+                        <Label fx:id="lblTotalPersonas" text="0" styleClass="kpi-value"/>
+                    </HBox>
+                    <Label text="Personas Registradas" styleClass="kpi-label"/>
                 </VBox>
             </GridPane>
 
-            <!-- Charts grid -->
+            <!-- ── BARRAS SERVICIOS + BARRAS DELEGACIONES ────────────────── -->
             <GridPane hgap="16" vgap="16">
                 <columnConstraints>
                     <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
                     <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
                 </columnConstraints>
 
-                <VBox styleClass="dash-card" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                    <padding><Insets top="18" right="20" bottom="18" left="20"/></padding>
-                    <Label text="Empresas por Servicio" styleClass="dash-card-title"/>
-                    <VBox fx:id="vboxServiciosBars" spacing="8"/>
+                <!-- Empresas por Servicio -->
+                <VBox styleClass="dash-card" spacing="12" GridPane.columnIndex="0">
+                    <padding><Insets top="22" right="24" bottom="22" left="24"/></padding>
+                    <Label text="Empresas por Servicio" styleClass="dash-card-title,dash-card-title-lg"/>
+                    <VBox fx:id="vboxServiciosBars" spacing="10"/>
+                    <!-- eje X renderizado dinámicamente -->
+                    <HBox fx:id="hboxServiciosAxis" spacing="0" alignment="CENTER_LEFT"/>
                 </VBox>
 
-                <VBox styleClass="dash-card" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                    <padding><Insets top="18" right="20" bottom="18" left="20"/></padding>
-                    <Label text="Últimas Empresas Añadidas" styleClass="dash-card-title"/>
-                    <VBox fx:id="vboxRecientes" spacing="8"/>
+                <!-- Empresas por Delegación -->
+                <VBox styleClass="dash-card" spacing="12" GridPane.columnIndex="1">
+                    <padding><Insets top="22" right="24" bottom="22" left="24"/></padding>
+                    <Label text="Empresas por Delegación" styleClass="dash-card-title,dash-card-title-lg"/>
+                    <VBox fx:id="vboxDelegBars" spacing="10"/>
+                    <HBox fx:id="hboxDelegAxis" spacing="0" alignment="CENTER_LEFT"/>
+                </VBox>
+            </GridPane>
+
+            <!-- ── PIE CHART AGENTE + TABLA RECIENTES ───────────────────── -->
+            <GridPane hgap="16" vgap="16">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                </columnConstraints>
+
+                <!-- Empresas por Agente Contable -->
+                <VBox styleClass="dash-card" spacing="12" GridPane.columnIndex="0">
+                    <padding><Insets top="22" right="24" bottom="22" left="24"/></padding>
+                    <Label text="Empresas por Agente Contable" styleClass="dash-card-title,dash-card-title-lg"/>
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <PieChart fx:id="chartAgente"
+                                  legendVisible="false"
+                                  labelsVisible="true"
+                                  labelLineLength="10"
+                                  prefWidth="350"
+                                  prefHeight="280"
+                                  animated="false"
+                                  HBox.hgrow="ALWAYS"/>
+                        <VBox fx:id="vboxAgenteLegend" spacing="10" alignment="CENTER_LEFT"/>
+                    </HBox>
                 </VBox>
 
-                <VBox styleClass="dash-card" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                    <padding><Insets top="18" right="20" bottom="18" left="20"/></padding>
-                    <Label text="Por Delegación" styleClass="dash-card-title"/>
-                    <VBox fx:id="vboxDelegBars" spacing="8"/>
-                </VBox>
-
-                <VBox styleClass="dash-card" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                    <padding><Insets top="18" right="20" bottom="18" left="20"/></padding>
-                    <Label text="Personas más relacionadas" styleClass="dash-card-title"/>
-                    <VBox fx:id="vboxTopPersonas" spacing="8"/>
+                <!-- Últimas Empresas Buscadas -->
+                <VBox styleClass="dash-card" spacing="12" GridPane.columnIndex="1">
+                    <padding><Insets top="22" right="24" bottom="22" left="24"/></padding>
+                    <Label text="Últimas Empresas Buscadas" styleClass="dash-card-title,dash-card-title-lg"/>
+                    <TableView fx:id="tableRecientes" VBox.vgrow="ALWAYS"
+                               styleClass="dash-table"
+                               prefHeight="220"
+                               fixedCellSize="36"/>
                 </VBox>
             </GridPane>
 

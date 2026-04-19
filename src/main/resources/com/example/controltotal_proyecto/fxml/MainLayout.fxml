@@ -74,25 +74,6 @@
 
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <VBox styleClass="sidebar-bottom">
-                    <padding><Insets top="16" right="12" bottom="16" left="12"/></padding>
-                    <VBox styleClass="sidebar-stats" spacing="8">
-                        <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
-                        <HBox>
-                            <Label text="Empresas activas" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
-                            <Label fx:id="statActivas" text="0" styleClass="stat-value"/>
-                        </HBox>
-                        <HBox>
-                            <Label text="Total personas" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
-                            <Label fx:id="statPersonas" text="0" styleClass="stat-value"/>
-                        </HBox>
-                        <HBox>
-                            <Label text="Relaciones" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
-                            <Label fx:id="statRelaciones" text="0" styleClass="stat-value"/>
-                        </HBox>
-                    </VBox>
-                </VBox>
-
             </VBox>
 
             <StackPane fx:id="contentArea" HBox.hgrow="ALWAYS" styleClass="content-area"/>

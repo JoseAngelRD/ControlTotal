@@ -20,7 +20,7 @@ public class EmpresaService {
         List.of("SL","SLL","SA","SAL","CB","SDAD.","COOP.","AND.");
 
     private static final List<String> AGENTES = List.of(
-        "Pedro Sánchez", "María González", "Luis Martín", "Ana Fernández"
+        "Carmen Orta", "Antonia Tejada", "Pilar García", "Decilias Díaz"
     );
 
     private static final List<String> SERVICIOS   = List.of("Asesoría","Auditoría","Concursal","Pericial");
@@ -107,7 +107,7 @@ public class EmpresaService {
         return DatabaseManager.desvincularEmpresaPersona(empresaNif, personaNif);
     }
 
-    public List<String> getPersonasNif(String empresaNif) {
+    public List<Persona> getPersonas(String empresaNif) {
         return DatabaseManager.obtenerPersonasDeEmpresa(empresaNif);
     }
 
