@@ -15,9 +15,9 @@ public class BadgeFactory {
         Label lbl = new Label(estado);
         lbl.getStyleClass().add("badge");
         if ("Activo".equalsIgnoreCase(estado)) {
-            lbl.getStyleClass().add("badge-active");
+            lbl.getStyleClass().add("badge-activo");
         } else {
-            lbl.getStyleClass().add("badge-inactive");
+            lbl.getStyleClass().add("badge-pasivo");
         }
         return lbl;
     }

@@ -15,8 +15,8 @@
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
         fx:controller="com.example.controltotal_proyecto.controller.EmpresaFormController"
-        styleClass="dialog-root"
-        prefWidth="720"
+        styleClass="form-inline-root"
+        maxWidth="1.7976931348623157E308" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS"
         spacing="0">
 
     <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
@@ -32,7 +32,7 @@
 
     <Separator styleClass="dialog-separator"/>
 
-    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="dialog-scroll">
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="dialog-scroll" maxWidth="1.7976931348623157E308" maxHeight="1.7976931348623157E308">
         <VBox spacing="0">
             <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
 

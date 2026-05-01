@@ -45,7 +45,7 @@
     -fx-font-size: 26px;
     -fx-font-weight: bold;
     -fx-text-fill: #c9a84c;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Century Gothic", serif;
 }
 
 .avatar {
@@ -142,7 +142,7 @@
 
 .stat-label {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 12.5px;
+    -fx-font-size: 16px;
 }
 
 .stat-value {
@@ -166,7 +166,7 @@
     -fx-text-fill: #ffffff;
     -fx-font-size: 26px;
     -fx-font-weight: bold;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Century Gothic", serif;
 }
 
 .page-sub {
@@ -446,18 +446,8 @@
     -fx-background-radius: 20px;
     -fx-border-radius: 20px;
     -fx-padding: 4 10 4 10;
-    -fx-font-size: 12.5px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
-}
-
-.badge-active {
-    -fx-background-color: rgba(62,207,142,0.15);
-    -fx-text-fill: #3ecf8e;
-}
-
-.badge-inactive {
-    -fx-background-color: #252b3d;
-    -fx-text-fill: #8b9bb4;
 }
 
 /* Badges de servicio */
@@ -465,7 +455,7 @@
     -fx-background-radius: 6px;
     -fx-border-radius: 6px;
     -fx-padding: 3 9 3 9;
-    -fx-font-size: 12.5px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-background-color: rgba(79,125,255,0.15);
     -fx-text-fill: #4f7dff;
@@ -498,7 +488,7 @@
     -fx-background-radius: 6px;
     -fx-border-radius: 6px;
     -fx-padding: 3 9 3 9;
-    -fx-font-size: 12.5px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
@@ -511,7 +501,7 @@
     -fx-border-radius: 20px;
     -fx-background-radius: 20px;
     -fx-padding: 3 10 3 10;
-    -fx-font-size: 12.5px;
+    -fx-font-size: 14px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -564,7 +554,7 @@
 
 .stat-card-label {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
@@ -572,12 +562,12 @@
     -fx-text-fill: #ffffff;
     -fx-font-size: 38px;
     -fx-font-weight: bold;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Century Gothic", serif;
 }
 
 .stat-card-sub {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
 }
 
 /* Dash cards */
@@ -598,14 +588,14 @@
 /* Barras de progreso del dashboard */
 .bar-label {
     -fx-text-fill: #b4c5d6;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-min-width: 100px;
     -fx-alignment: CENTER_RIGHT;
 }
 
 .bar-count {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
     -fx-min-width: 28px;
     -fx-alignment: CENTER_RIGHT;
     -fx-font-weight: bold;
@@ -647,7 +637,7 @@
 
 .mini-item-meta {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 12.5px;
+    -fx-font-size: 14px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -751,7 +741,7 @@
     -fx-text-fill: #ffffff;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Century Gothic", serif;
 }
 
 .dialog-sub {
@@ -782,7 +772,7 @@
 /* ─── Secciones del formulario ───────────────────────────────────────────── */
 .form-section-title {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 0 0 6 0;
 }
@@ -797,7 +787,7 @@
 /* ─── Campos del formulario ─────────────────────────────────────────────── */
 .form-label {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
@@ -853,7 +843,7 @@
 
 .form-hint {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
 }
 
 /* Preview de abreviatura */
@@ -876,7 +866,7 @@
 .ruta-preview {
     -fx-text-fill: #3ecf8e;
     -fx-font-family: "Courier New", monospace;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-background-color: #0f1117;
     -fx-border-color: #2a3050;
     -fx-border-width: 1px;
@@ -903,14 +893,14 @@
 .dir-line {
     -fx-text-fill: #c9a84c;
     -fx-font-family: "Courier New", monospace;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-padding: 0 0 0 14;
 }
 
 .dir-line-sub {
     -fx-text-fill: #8b9bb4;
     -fx-font-family: "Courier New", monospace;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-padding: 0 0 0 28;
 }
 
@@ -947,7 +937,7 @@
 
 .person-meta {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
 }
 
 .btn-remove-person {
@@ -973,7 +963,7 @@
     -fx-border-radius: 20px;
     -fx-background-radius: 20px;
     -fx-padding: 4 12 4 12;
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
     -fx-cursor: hand;
 }
 
@@ -984,7 +974,7 @@
 /* ─── Texto auxiliar ─────────────────────────────────────────────────────── */
 .text-muted {
     -fx-text-fill: #8b9bb4;
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1083,7 +1073,8 @@
     -fx-text-fill: white;
 }
 .axis-tick {
-    -fx-font-size: 12.5px;
+    -fx-font-size: 14
+    .5px;
     -fx-text-fill: #8b9bb4;
     -fx-alignment: center;
 }
@@ -1104,7 +1095,7 @@
     -fx-background-color: #1a2035;
 }
 .dash-table .column-header .label {
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-text-fill: #94a3b8;
 }
@@ -1126,16 +1117,14 @@
 .badge-estado {
     -fx-padding: 3 10 3 10;
     -fx-background-radius: 10;
-    -fx-font-size: 12.5px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
-.badge-activo  { -fx-background-color: #0f2e22; -fx-text-fill: #3ecf8e; }
-.badge-pasivo  { -fx-background-color: #2c1515; -fx-text-fill: #f06060; }
 
 /* ── Pie chart override ──────────────────────────────────────────────────── */
 .chart-pie-label {
     -fx-fill: #ffffff;
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 .chart-pie-label-line {
@@ -1145,3 +1134,179 @@
 .chart-content          { -fx-padding: 0; }
 .chart                  { -fx-background-color: transparent; -fx-padding: 0; }
 .chart-title            { -fx-font-size: 0; }
+
+/* ── ScrollPane sin borde ───────────────────────────────────────── */
+.card-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+.card-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ── Lista de tarjetas ──────────────────────────────────────────── */
+.card-list {
+    -fx-background-color: transparent;
+}
+
+/* ── Tarjeta empresa ────────────────────────────────────────────── */
+.empresa-card {
+    -fx-background-color: #1e2433;      /* fondo oscuro igual que la captura */
+    -fx-background-radius: 10;
+    -fx-border-color: #2a3347;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 6, 0, 0, 2);
+}
+.empresa-card:hover {
+    -fx-background-color: #232b3e;
+    -fx-border-color: #3d4f70;
+}
+
+/* ── Monograma ──────────────────────────────────────────────────── */
+.card-monogram {
+    -fx-background-color: #2a3347;
+    -fx-background-radius: 8;
+    -fx-text-fill: #c9a84c;             /* dorado como en la captura */
+    -fx-font-family: "Century Gothic", serif;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+/* ── Títulos de campo (Denominación Social, Forma Social…) ─────── */
+.card-field-title {
+    -fx-text-fill: #6b7a99;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+/* ── Valores de campo ───────────────────────────────────────────── */
+.card-field-value {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 16px;
+}
+.card-field-value-bold {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+.card-field-value-mono {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 16px;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+}
+
+/* ── Botón Modificar (azul) ─────────────────────────────────────── */
+.btn-card-edit {
+    -fx-background-color: #1e3a5f;
+    -fx-text-fill: #4ea8ff;
+    -fx-background-radius: 6;
+    -fx-border-color: #2d5599;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 6 14 6 14;
+}
+.btn-card-edit:hover {
+    -fx-background-color: #254a7a;
+    -fx-border-color: #4ea8ff;
+}
+
+/* ── Botón Abrir Directorios (verde) ────────────────────────────── */
+.btn-card-folder {
+    -fx-background-color: #1a3a2a;
+    -fx-text-fill: #4ec994;
+    -fx-background-radius: 6;
+    -fx-border-color: #2a6644;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 6 14 6 14;
+}
+.btn-card-folder:hover {
+    -fx-background-color: #1f4833;
+    -fx-border-color: #4ec994;
+}
+
+/* ── Badge Estado ───────────────────────────────────────────────── */
+/* BadgeFactory ya crea el nodo; solo añadimos overrides si es necesario */
+.badge-activo {
+    -fx-background-color: #3ecf8e26;
+    -fx-text-fill: #3ecf8e;
+}
+.badge-pasivo {
+    -fx-background-color: #521010;
+    -fx-text-fill: #D42D2A;
+}
+
+/* ── Badge Servicio ─────────────────────────────────────────────── */
+.badge-asesoria {
+    -fx-background-color: #1e3a5f;
+    -fx-text-fill: #4ea8ff;
+    -fx-background-radius: 12;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 14px;
+}
+.badge-pericial {
+    -fx-background-color: #3b2060;
+    -fx-text-fill: #c084fc;
+    -fx-background-radius: 12;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 14px;
+}
+.badge-auditoria {
+    -fx-background-color: #3a2010;
+    -fx-text-fill: #fb923c;
+    -fx-background-radius: 12;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 14px;
+}
+.badge-concursal {
+    -fx-background-color: #1e3a1e;
+    -fx-text-fill: #86efac;
+    -fx-background-radius: 12;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 14px;
+}
+
+/* ── Formulario inline: ocupa todo el espacio ───────────────────── */
+#vistaFormulario {
+    -fx-background-color: transparent;
+}
+#vistaFormulario > * {
+    -fx-pref-width: infinity;
+    -fx-pref-height: infinity;
+}
+
+/* ── Formulario inline: sin marco, ocupa todo ───────────────────── */
+.form-inline-root {
+    -fx-background-color: transparent; /* O usa #0f1117 si lo prefieres */
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Quitar el borde del dialog-header cuando está inline */
+.form-inline-root .dialog-header {
+    -fx-background-color: #161b27;
+    -fx-border-color: transparent;
+}
+
+/* ScrollPane interno sin borde */
+.form-inline-root .dialog-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.form-inline-root .dialog-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Footer sin borde superior excepto una línea sutil */
+.form-inline-root .dialog-footer {
+    -fx-background-color: #161b27;
+    -fx-border-color: #2a3347 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}

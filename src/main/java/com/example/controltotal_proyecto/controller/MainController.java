@@ -95,11 +95,17 @@ public class MainController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node node = loader.load();
+
+            // 🔥 LA MAGIA DEFINITIVA: Bindings
+            // Obligamos a la vista cargada a copiar exactamente el ancho y alto del contenedor
+            if (node instanceof javafx.scene.layout.Region region) {
+                region.prefWidthProperty().bind(contentArea.widthProperty());
+                region.prefHeightProperty().bind(contentArea.heightProperty());
+            }
+
             Object ctrl = loader.getController();
             controllerCache.put(key, ctrl);
 
-            // Inyectar referencia al MainController para que los sub-controladores
-            // puedan llamar a refreshStats()
             if (ctrl instanceof ChildController cc) {
                 cc.setMainController(this);
             }

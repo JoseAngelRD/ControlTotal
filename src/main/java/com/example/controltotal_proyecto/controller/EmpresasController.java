@@ -1,271 +1,316 @@
 package com.example.controltotal_proyecto.controller;
 
 import com.example.controltotal_proyecto.entities.Empresa;
-import com.example.controltotal_proyecto.entities.Persona;
 import com.example.controltotal_proyecto.service.EmpresaService;
-import com.example.controltotal_proyecto.service.PersonaService;
 import com.example.controltotal_proyecto.util.BadgeFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.layout.*;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  * Controlador de la vista "Empresas".
- * Gestiona la tabla con filtros, búsqueda y apertura del diálogo de alta/edición.
+ * Muestra las empresas como tarjetas (cards) en lugar de tabla,
+ * y abre el formulario de alta/edición de forma INLINE dentro de la
+ * misma ventana (sin Stage emergente).
  */
 public class EmpresasController implements Initializable,
-    MainController.RefreshableController, MainController.ChildController {
+        MainController.RefreshableController, MainController.ChildController {
 
-    // ─── Tabla ────────────────────────────────────────────────────────────────
-    @FXML private TableView<Empresa>         tablaEmpresas;
-    @FXML private TableColumn<Empresa,String> colAbreviatura;
-    @FXML private TableColumn<Empresa,String> colDenominacion;
-    @FXML private TableColumn<Empresa,String> colNif;
-    @FXML private TableColumn<Empresa,String> colFormaSocial;
-    @FXML private TableColumn<Empresa,String> colServicio;
-    @FXML private TableColumn<Empresa,String> colDelegacion;
-    @FXML private TableColumn<Empresa,String> colAgente;
-    @FXML private TableColumn<Empresa,String> colEstado;
-    @FXML private TableColumn<Empresa,Void>   colAcciones;
+    // ─── Vistas (StackPane layers) ────────────────────────────────────────────
+    @FXML private VBox vistaLista;        // Capa que muestra la lista de tarjetas
+    @FXML private VBox vistaFormulario;   // Capa que muestra el formulario inline
+
+    // ─── Contenedor de tarjetas ───────────────────────────────────────────────
+    @FXML private VBox listContainer;     // VBox dentro del ScrollPane
+    @FXML private VBox lblEmpty;          // Placeholder "no hay empresas"
 
     // ─── Filtros y búsqueda ───────────────────────────────────────────────────
-    @FXML private TextField      searchField;
-    @FXML private ToggleButton   chipTodos;
-    @FXML private ToggleButton   chipActivo;
-    @FXML private ToggleButton   chipPasivo;
+    @FXML private TextField        searchField;
+    @FXML private ToggleButton     chipTodos;
+    @FXML private ToggleButton     chipActivo;
+    @FXML private ToggleButton     chipPasivo;
     @FXML private ComboBox<String> comboServicio;
     @FXML private ComboBox<String> comboDelegacion;
     @FXML private ComboBox<String> comboAgente;
 
-    // ─── Estado vacío ─────────────────────────────────────────────────────────
-    @FXML private VBox lblEmpty;
-
-    // ─── Datos ───────────────────────────────────────────────────────────────
-    private final EmpresaService             service      = new EmpresaService();
-    private final ObservableList<Empresa>    masterList   = FXCollections.observableArrayList();
-    private       FilteredList<Empresa>      filteredList;
-    private       MainController             mainController;
+    // ─── Datos ────────────────────────────────────────────────────────────────
+    private final EmpresaService          service      = new EmpresaService();
+    private final ObservableList<Empresa> masterList   = FXCollections.observableArrayList();
+    private       FilteredList<Empresa>   filteredList;
+    private       MainController          mainController;
 
     // ─── Init ─────────────────────────────────────────────────────────────────
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        configurarColumnas();
+        vistaLista.setPrefWidth(Double.MAX_VALUE);
+        vistaLista.setPrefHeight(Double.MAX_VALUE);
+
+        vistaFormulario.setPrefWidth(Double.MAX_VALUE);
+        vistaFormulario.setPrefHeight(Double.MAX_VALUE);
+
         configurarFiltros();
         cargarDatos();
     }
 
-    @Override public void onViewActivated()                      { cargarDatos(); }
-    @Override public void setMainController(MainController main) { this.mainController = main; }
-
-    // ─── Configurar columnas ─────────────────────────────────────────────────
-
-    private void configurarColumnas() {
-        colAbreviatura.setCellValueFactory(new PropertyValueFactory<>("abreviatura"));
-        colAbreviatura.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String v, boolean empty) {
-                super.updateItem(v, empty);
-                if (empty || v == null) { setText(null); setGraphic(null); return; }
-                Label lbl = new Label(v);
-                lbl.getStyleClass().add("abr-label");
-                setGraphic(lbl); setText(null);
-            }
-        });
-
-        colDenominacion.setCellValueFactory(new PropertyValueFactory<>("denominacionSocial"));
-        colDenominacion.getStyleClass().add("col-bold");
-
-        colNif.setCellValueFactory(new PropertyValueFactory<>("nifCif"));
-        colNif.getStyleClass().add("col-mono");
-
-        colFormaSocial.setCellValueFactory(new PropertyValueFactory<>("formaSocial"));
-
-        // Columna Servicio — badge con color
-        colServicio.setCellValueFactory(new PropertyValueFactory<>("servicio"));
-        colServicio.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String v, boolean empty) {
-                super.updateItem(v, empty);
-                if (empty || v == null) { setText(null); setGraphic(null); return; }
-                setGraphic(BadgeFactory.servicioBadge(v)); setText(null);
-            }
-        });
-
-        colDelegacion.setCellValueFactory(new PropertyValueFactory<>("delegacion"));
-        colAgente.setCellValueFactory(new PropertyValueFactory<>("agenteContable"));
-
-        // Columna Estado — badge activo/pasivo
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
-        colEstado.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String v, boolean empty) {
-                super.updateItem(v, empty);
-                if (empty || v == null) { setText(null); setGraphic(null); return; }
-                setGraphic(BadgeFactory.estadoBadge(v)); setText(null);
-            }
-        });
-
-        // Columna Acciones — botones Editar / Carpeta
-        colAcciones.setCellFactory(col -> new TableCell<>() {
-            private final Button btnEditar  = crearBotonIcono("Editar", "btn-icon-edit");
-            private final Button btnCarpeta = crearBotonIcono("Carpeta", "btn-icon-folder");
-            private final HBox   box        = new HBox(6, btnEditar, btnCarpeta);
-            {
-                box.setAlignment(Pos.CENTER_LEFT);
-                btnEditar.setOnAction(e -> {
-                    Empresa emp = getTableView().getItems().get(getIndex());
-                    abrirFormulario(emp);
-                });
-                btnCarpeta.setOnAction(e -> {
-                    Empresa emp = getTableView().getItems().get(getIndex());
-                    abrirCarpeta(emp.getRutaDocumental());
-                });
-            }
-            @Override protected void updateItem(Void v, boolean empty) {
-                super.updateItem(v, empty);
-                setGraphic(empty ? null : box);
-            }
-        });
-
-        tablaEmpresas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-    }
-
-    private Button crearBotonIcono(String tooltip, String styleClass) {
-        Button btn = new Button();
-        btn.setTooltip(new Tooltip(tooltip));
-        btn.getStyleClass().addAll("btn-icon", styleClass);
-        return btn;
-    }
+    @Override public void onViewActivated()                       { cargarDatos(); }
+    @Override public void setMainController(MainController main)  { this.mainController = main; }
 
     // ─── Configurar filtros ───────────────────────────────────────────────────
 
     private void configurarFiltros() {
-        // Toggle group para estado
         ToggleGroup tg = new ToggleGroup();
         chipTodos.setToggleGroup(tg);
         chipActivo.setToggleGroup(tg);
         chipPasivo.setToggleGroup(tg);
         chipTodos.setSelected(true);
-        tg.selectedToggleProperty().addListener((obs, o, n) -> aplicarFiltros());
+        tg.selectedToggleProperty().addListener((obs, o, n) -> renderCards());
 
-        // ComboBoxes
         comboServicio.getItems().add("Todos");
         comboServicio.getItems().addAll(service.getServicios());
         comboServicio.setValue("Todos");
-        comboServicio.setOnAction(e -> aplicarFiltros());
+        comboServicio.setOnAction(e -> renderCards());
 
         comboDelegacion.getItems().add("Todas");
         comboDelegacion.getItems().addAll(service.getDelegaciones());
         comboDelegacion.setValue("Todas");
-        comboDelegacion.setOnAction(e -> aplicarFiltros());
+        comboDelegacion.setOnAction(e -> renderCards());
 
         comboAgente.getItems().add("Todos");
         comboAgente.getItems().addAll(service.getAgentes());
         comboAgente.setValue("Todos");
-        comboAgente.setOnAction(e -> aplicarFiltros());
+        comboAgente.setOnAction(e -> renderCards());
 
-        // Búsqueda en tiempo real
-        searchField.textProperty().addListener((obs, o, n) -> aplicarFiltros());
+        searchField.textProperty().addListener((obs, o, n) -> renderCards());
     }
 
-    // ─── Carga de datos ───────────────────────────────────────────────────────
+    // ─── Carga y renderizado ──────────────────────────────────────────────────
 
     private void cargarDatos() {
         masterList.setAll(service.obtenerTodas());
         filteredList = new FilteredList<>(masterList, p -> true);
-        SortedList<Empresa> sorted = new SortedList<>(filteredList);
-        sorted.comparatorProperty().bind(tablaEmpresas.comparatorProperty());
-        tablaEmpresas.setItems(sorted);
-        actualizarEstadoVacio();
+        renderCards();
+    }
+
+    /** Aplica los filtros activos y reconstruye las tarjetas visibles. */
+    private void renderCards() {
+        if (filteredList == null) return;
+        aplicarFiltros();
+        List<Empresa> visible = filteredList.stream().collect(Collectors.toList());
+
+        listContainer.getChildren().clear();
+        for (Empresa e : visible) {
+            listContainer.getChildren().add(crearTarjeta(e));
+        }
+        actualizarEstadoVacio(visible.isEmpty());
     }
 
     private void aplicarFiltros() {
-        if (filteredList == null) return;
         filteredList.setPredicate(e -> {
-            // Texto de búsqueda
             String q = searchField.getText().toLowerCase();
-            boolean matchQ = q.isBlank() ||
-                safe(e.getDenominacionSocial()).contains(q) ||
-                safe(e.getNifCif()).contains(q) ||
-                safe(e.getAbreviatura()).contains(q);
+            boolean matchQ = q.isBlank()
+                    || safe(e.getDenominacionSocial()).contains(q)
+                    || safe(e.getNifCif()).contains(q)
+                    || safe(e.getAbreviatura()).contains(q);
 
-            // Estado
             ToggleButton sel = (ToggleButton) chipTodos.getToggleGroup().getSelectedToggle();
-            boolean matchE = sel == null || sel == chipTodos ||
-                (sel == chipActivo && e.isActivo()) ||
-                (sel == chipPasivo && !e.isActivo());
+            boolean matchE = sel == null || sel == chipTodos
+                    || (sel == chipActivo && e.isActivo())
+                    || (sel == chipPasivo && !e.isActivo());
 
-            // Servicio
             String sv = comboServicio.getValue();
             boolean matchS = sv == null || sv.equals("Todos") || sv.equals(e.getServicio());
 
-            // Delegación
             String dv = comboDelegacion.getValue();
             boolean matchD = dv == null || dv.equals("Todas") || dv.equals(e.getDelegacion());
 
-            // Agente
             String av = comboAgente.getValue();
             boolean matchA = av == null || av.equals("Todos") || av.equals(e.getAgenteContable());
 
             return matchQ && matchE && matchS && matchD && matchA;
         });
-        actualizarEstadoVacio();
     }
 
-    private void actualizarEstadoVacio() {
-        boolean vacio = tablaEmpresas.getItems().isEmpty();
-        tablaEmpresas.setVisible(!vacio);
+    private void actualizarEstadoVacio(boolean vacio) {
+        listContainer.setVisible(!vacio);
         lblEmpty.setVisible(vacio);
     }
 
     private String safe(String s) { return s != null ? s.toLowerCase() : ""; }
 
-    // ─── Acciones de usuario ─────────────────────────────────────────────────
+    // ─── Construcción de tarjeta ──────────────────────────────────────────────
 
-    @FXML private void onNuevaEmpresa() {
-        abrirFormulario(null);
+    /**
+     * Construye la tarjeta visual de una empresa, replicando el diseño de la captura:
+     * [Monograma] [Denominación | Forma | NIF | Servicio | Delegación | Agente] [Estado] [Botones]
+     */
+    private Node crearTarjeta(Empresa e) {
+
+        /* ── Monograma ── */
+        String abr = (e.getAbreviatura() != null && !e.getAbreviatura().isBlank())
+                ? e.getAbreviatura().substring(0, Math.min(10, e.getAbreviatura().length()))
+                : iniciales(e.getDenominacionSocial());
+        Label monogram = new Label(abr);
+        monogram.getStyleClass().add("card-monogram");
+        monogram.setMinWidth(76);
+        monogram.setMinHeight(76);
+        monogram.setMaxWidth(76);
+        monogram.setMaxHeight(76);
+        monogram.setAlignment(Pos.CENTER);
+
+        /* ── Col 1: Denominación ── */
+        VBox colDenom = campoCard("Denominación Social",
+                e.getDenominacionSocial(), "card-field-value-bold");
+        colDenom.setPrefWidth(250);
+        colDenom.setMinWidth(140);
+
+        /* ── Col 2: Forma Social ── */
+        VBox colFS = campoCard("Forma Social",
+                nvl(e.getFormaSocial()), "card-field-value");
+        colFS.setPrefWidth(120);
+
+        /* ── Col 3: NIF/CIF ── */
+        VBox colNif = campoCard("NIF/CIF",
+                nvl(e.getNifCif()), "card-field-value-mono");
+        colNif.setPrefWidth(100);
+
+        /* ── Col 4: Servicio (badge) ── */
+        Label lblSrvTitle = new Label("Servicio");
+        lblSrvTitle.getStyleClass().add("card-field-title");
+        Node srvBadge = BadgeFactory.servicioBadge(nvl(e.getServicio()));
+        VBox colSrv = new VBox(4, lblSrvTitle, srvBadge);
+        colSrv.setPrefWidth(100);
+
+        /* ── Col 5: Delegación ── */
+        VBox colDel = campoCard("Delegación",
+                nvl(e.getDelegacion()), "card-field-value");
+        colDel.setPrefWidth(150);
+
+        /* ── Col 6: Agente Contable ── */
+        VBox colAgt = campoCard("Agente Contable",
+                nvl(e.getAgenteContable()), "card-field-value");
+        HBox.setHgrow(colAgt, Priority.ALWAYS);
+
+        /* ── Fila de campos ── */
+        HBox fields = new HBox(16, colDenom, colFS, colNif, colSrv, colDel, colAgt);
+        fields.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(fields, Priority.ALWAYS);
+
+        /* ── Estado badge ── */
+        Node estadoBadge = BadgeFactory.estadoBadge(e.isActivo() ? "Activo" : "Pasivo");
+
+        /* ── Botones ── */
+        Button btnMod = new Button("✏  Modificar");
+        btnMod.getStyleClass().add("btn-card-edit");
+        btnMod.setOnAction(ev -> abrirFormulario(e));
+
+        Button btnCarp = new Button("📁  Abrir Directorios");
+        btnCarp.getStyleClass().add("btn-card-folder");
+        btnCarp.setOnAction(ev -> abrirCarpeta(e.getRutaDocumental()));
+
+        HBox btnRow = new HBox(8, btnMod, btnCarp);
+        btnRow.setAlignment(Pos.CENTER_RIGHT);
+
+        /* ── Área derecha: badge + botones ── */
+        VBox rightArea = new VBox(10, estadoBadge, btnRow);
+        rightArea.setAlignment(Pos.TOP_RIGHT);
+
+        /* ── Contenido central + derecha ── */
+        HBox centerAndRight = new HBox(16, fields, rightArea);
+        centerAndRight.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(fields, Priority.ALWAYS);
+
+        /* ── Tarjeta completa ── */
+        HBox card = new HBox(16, monogram, centerAndRight);
+        card.getStyleClass().add("empresa-card");
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPadding(new Insets(16, 20, 16, 16));
+        HBox.setHgrow(centerAndRight, Priority.ALWAYS);
+
+        return card;
     }
 
+    /** Helper: crea un VBox con título gris + valor. */
+    private VBox campoCard(String titulo, String valor, String valueStyleClass) {
+        Label t = new Label(titulo);
+        t.getStyleClass().add("card-field-title");
+        Label v = new Label(valor);
+        v.getStyleClass().add(valueStyleClass);
+        return new VBox(4, t, v);
+    }
+
+    /** Genera iniciales a partir del nombre (máx. 2 letras). */
+    private String iniciales(String nombre) {
+        if (nombre == null || nombre.isBlank()) return "?";
+        String[] partes = nombre.trim().split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (String p : partes) {
+            if (!p.isBlank()) sb.append(Character.toUpperCase(p.charAt(0)));
+            if (sb.length() >= 2) break;
+        }
+        return sb.toString();
+    }
+
+    /** Devuelve "—" si el valor es nulo o vacío. */
+    private String nvl(String s) { return (s != null && !s.isBlank()) ? s : "—"; }
+
+    // ─── Formulario inline ────────────────────────────────────────────────────
+
+    @FXML private void onNuevaEmpresa() { abrirFormulario(null); }
+
+    /**
+     * Carga EmpresaFormDialog.fxml en la capa 'vistaFormulario'
+     * y oculta la lista — sin abrir ningún Stage.
+     */
     private void abrirFormulario(Empresa empresaEditar) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/example/controltotal_proyecto/fxml/dialogs/EmpresaFormDialog.fxml")
+                    getClass().getResource(
+                            "/com/example/controltotal_proyecto/fxml/dialogs/EmpresaFormDialog.fxml")
             );
-            Parent root = loader.load();
+            Node formRoot = loader.load();
             EmpresaFormController ctrl = loader.getController();
-            ctrl.init(empresaEditar, result -> {
+
+            // Runnable que vuelve a la lista cuando el form termina
+            Runnable volver = () -> {
+                vistaFormulario.setVisible(false);
+                vistaFormulario.getChildren().clear();
+                vistaLista.setVisible(true);
                 cargarDatos();
                 if (mainController != null) mainController.refreshStats();
-            });
+            };
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setTitle(empresaEditar == null ? "Nueva Empresa" : "Editar Empresa");
-            dialog.setScene(new Scene(root));
-            dialog.getScene().getStylesheets().add(
-                getClass().getResource("/com/example/controltotal_proyecto/css/styles.css").toExternalForm()
-            );
-            dialog.setMinWidth(740);
-            dialog.setMinHeight(650);
-            dialog.show();
+            ctrl.setCloseAction(volver);
+            ctrl.init(empresaEditar, result -> volver.run());
+
+            if (formRoot instanceof Region region) {
+                region.prefWidthProperty().bind(vistaFormulario.widthProperty());
+                region.prefHeightProperty().bind(vistaFormulario.heightProperty());
+            }
+
+            VBox.setVgrow(formRoot, Priority.ALWAYS);
+
+            vistaFormulario.getChildren().setAll(formRoot);
+            vistaLista.setVisible(false);
+            vistaFormulario.setVisible(true);
 
         } catch (IOException ex) {
-            mostrarError("No se pudo abrir el formulario de empresa.", ex);
+            ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "No se pudo cargar el formulario de empresa.").show();
         }
     }
 
@@ -279,10 +324,5 @@ public class EmpresasController implements Initializable,
         } catch (IOException ex) {
             new Alert(Alert.AlertType.INFORMATION, "Ruta: " + ruta).show();
         }
-    }
-
-    private void mostrarError(String msg, Exception ex) {
-        ex.printStackTrace();
-        new Alert(Alert.AlertType.ERROR, msg).show();
     }
 }

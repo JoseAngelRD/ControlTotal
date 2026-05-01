@@ -4,80 +4,99 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.Region?>
 
-<VBox
-    xmlns="http://javafx.com/javafx"
-    xmlns:fx="http://javafx.com/fxml"
-    fx:controller="com.example.controltotal_proyecto.controller.EmpresasController"
-    styleClass="view-root">
+<!--
+  Root es StackPane para poder apilar:
+    - vistaLista   (la lista de tarjetas)
+    - vistaFormulario  (el formulario inline, oculto por defecto)
+  El controlador alterna su visibilidad en lugar de abrir un Stage.
+-->
+<StackPane
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="com.example.controltotal_proyecto.controller.EmpresasController"
+        styleClass="view-root"
+        maxWidth="1.7976931348623157E308"
+        maxHeight="1.7976931348623157E308"
+        HBox.hgrow="ALWAYS"
+        VBox.vgrow="ALWAYS">
 
-    <!-- Cabecera -->
-    <VBox styleClass="page-header">
-        <padding><Insets top="24" right="28" bottom="0" left="28"/></padding>
-        <Label text="Empresas" styleClass="page-title"/>
-        <Label text="Gestión del registro de empresas" styleClass="page-sub"/>
+    <!-- ═══════════════════════════════════════════════
+         CAPA 1 — Vista lista de empresas
+    ═══════════════════════════════════════════════ -->
+    <VBox fx:id="vistaLista"
+          maxWidth="1.7976931348623157E308"
+          maxHeight="1.7976931348623157E308">
+
+        <!-- Cabecera -->
+        <VBox styleClass="page-header">
+            <padding><Insets top="24" right="28" bottom="0" left="28"/></padding>
+            <Label text="Empresas" styleClass="page-title"/>
+            <Label text="Gestión del registro de empresas" styleClass="page-sub"/>
+        </VBox>
+
+        <!-- Toolbar: botón + buscador -->
+        <HBox styleClass="toolbar" alignment="CENTER_LEFT" spacing="10">
+            <padding><Insets top="16" right="28" bottom="0" left="28"/></padding>
+            <Button text="+ Nueva Empresa" styleClass="btn,btn-primary" onAction="#onNuevaEmpresa"/>
+            <HBox styleClass="search-box" HBox.hgrow="ALWAYS" maxWidth="380"
+                  alignment="CENTER_LEFT" spacing="6">
+                <padding><Insets top="0" right="12" bottom="0" left="10"/></padding>
+                <Label text="🔍" styleClass="search-icon"/>
+                <TextField fx:id="searchField"
+                           promptText="Buscar por nombre, NIF/CIF, abreviatura…"
+                           styleClass="search-input" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <!-- Filtros -->
+        <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="8">
+            <padding><Insets top="10" right="28" bottom="10" left="28"/></padding>
+            <Label text="Estado:" styleClass="filter-label"/>
+            <ToggleButton fx:id="chipTodos"  text="Todos"  styleClass="filter-chip"/>
+            <ToggleButton fx:id="chipActivo" text="Activo" styleClass="filter-chip"/>
+            <ToggleButton fx:id="chipPasivo" text="Pasivo" styleClass="filter-chip"/>
+            <Label text="Servicio:" styleClass="filter-label"/>
+            <ComboBox fx:id="comboServicio"   styleClass="filter-select" prefWidth="130"/>
+            <ComboBox fx:id="comboDelegacion" styleClass="filter-select" prefWidth="180"/>
+            <ComboBox fx:id="comboAgente"     styleClass="filter-select" prefWidth="180"/>
+        </HBox>
+
+        <!-- Área de tarjetas -->
+        <StackPane VBox.vgrow="ALWAYS">
+            <padding><Insets top="8" right="28" bottom="28" left="28"/></padding>
+
+            <ScrollPane fx:id="scrollLista" fitToWidth="true" styleClass="card-scroll"
+                        maxWidth="1.7976931348623157E308"
+                        maxHeight="1.7976931348623157E308">
+                <VBox fx:id="listContainer" spacing="10" styleClass="card-list">
+                    <padding><Insets top="2" bottom="4"/></padding>
+                </VBox>
+            </ScrollPane>
+
+            <!-- Estado vacío -->
+            <VBox fx:id="lblEmpty" alignment="CENTER" spacing="12"
+                  styleClass="empty-state" visible="false" mouseTransparent="true">
+                <Label text="🏢" style="-fx-font-size:48px;-fx-opacity:0.3;"/>
+                <Label text="No hay empresas" styleClass="empty-title"/>
+                <Label text="Añade tu primera empresa usando el botón «Nueva Empresa»."
+                       styleClass="empty-sub"/>
+            </VBox>
+        </StackPane>
     </VBox>
 
-    <!-- Toolbar -->
-    <HBox styleClass="toolbar" alignment="CENTER_LEFT" spacing="10">
-        <padding><Insets top="16" right="28" bottom="0" left="28"/></padding>
-        <Button text="+ Nueva Empresa" styleClass="btn,btn-primary" onAction="#onNuevaEmpresa"/>
-        <HBox styleClass="search-box" HBox.hgrow="ALWAYS" maxWidth="380" alignment="CENTER_LEFT" spacing="6">
-            <padding><Insets top="0" right="12" bottom="0" left="10"/></padding>
-            <Label text="🔍" styleClass="search-icon"/>
-            <TextField fx:id="searchField"
-                       promptText="Buscar por nombre, NIF/CIF, abreviatura…"
-                       styleClass="search-input" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <Region HBox.hgrow="ALWAYS"/>
-    </HBox>
+    <!-- ═══════════════════════════════════════════
+         CAPA 2 — Formulario inline
+         Ocupa TO DO el StackPane padre.
+    ═══════════════════════════════════════════ -->
+    <VBox fx:id="vistaFormulario" visible="false" maxWidth="1.7976931348623157E308" maxHeight="1.7976931348623157E308"/>
 
-    <!-- Filtros -->
-    <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="8">
-        <padding><Insets top="10" right="28" bottom="10" left="28"/></padding>
-        <Label text="Estado:" styleClass="filter-label"/>
-        <ToggleButton fx:id="chipTodos"  text="Todos"  styleClass="filter-chip"/>
-        <ToggleButton fx:id="chipActivo" text="Activo" styleClass="filter-chip"/>
-        <ToggleButton fx:id="chipPasivo" text="Pasivo" styleClass="filter-chip"/>
-        <Label text="Servicio:" styleClass="filter-label"/>
-        <ComboBox fx:id="comboServicio"   styleClass="filter-select" prefWidth="130"/>
-        <ComboBox fx:id="comboDelegacion" styleClass="filter-select" prefWidth="180"/>
-        <ComboBox fx:id="comboAgente"     styleClass="filter-select" prefWidth="180"/>
-    </HBox>
-
-    <!-- Tabla -->
-    <StackPane VBox.vgrow="ALWAYS" styleClass="table-wrapper">
-        <padding><Insets top="0" right="28" bottom="28" left="28"/></padding>
-
-        <TableView fx:id="tablaEmpresas" styleClass="data-table">
-            <columns>
-                <TableColumn fx:id="colAbreviatura"  text="Abr."               prefWidth="70"/>
-                <TableColumn fx:id="colDenominacion" text="Denominación Social" prefWidth="240"/>
-                <TableColumn fx:id="colNif"          text="NIF/CIF"             prefWidth="110"/>
-                <TableColumn fx:id="colFormaSocial"  text="Forma Social"        prefWidth="120"/>
-                <TableColumn fx:id="colServicio"     text="Servicio"            prefWidth="100"/>
-                <TableColumn fx:id="colDelegacion"   text="Delegación"          prefWidth="130"/>
-                <TableColumn fx:id="colAgente"       text="Agente Contable"     prefWidth="140"/>
-                <TableColumn fx:id="colEstado"       text="Estado"              prefWidth="90"/>
-                <TableColumn fx:id="colAcciones"     text="Acciones"            prefWidth="90" sortable="false"/>
-            </columns>
-            <placeholder><Label text=""/></placeholder>
-        </TableView>
-
-        <VBox fx:id="lblEmpty" alignment="CENTER" spacing="12" styleClass="empty-state"
-              visible="false" mouseTransparent="true">
-            <Label text="🏢" style="-fx-font-size:48px;-fx-opacity:0.3;"/>
-            <Label text="No hay empresas" styleClass="empty-title"/>
-            <Label text="Añade tu primera empresa usando el botón «Nueva Empresa»." styleClass="empty-sub"/>
-        </VBox>
-    </StackPane>
-
-</VBox>
+</StackPane>
