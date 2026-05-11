@@ -3,48 +3,47 @@ package com.example.controltotal_proyecto.controller;
 import com.example.controltotal_proyecto.bd.DatabaseManager;
 import com.example.controltotal_proyecto.entities.Empresa;
 import com.example.controltotal_proyecto.entities.Persona;
+import javafx.animation.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
-/**
- * Controlador raíz del MainLayout.fxml.
- * Gestiona la navegación entre vistas (Dashboard, Empresas, Personas, Buscador)
- * y mantiene las referencias a los subcontroladores para compartir datos.
- */
 public class MainController implements Initializable {
 
-    // ─── fx:id de TopBar ──────────────────────────────────────────────────────
     @FXML private Label badgeEmpresas;
     @FXML private Label badgePersonas;
 
-    // ─── fx:id de Sidebar — nav items ────────────────────────────────────────
     @FXML private HBox navDashboard;
     @FXML private HBox navEmpresas;
     @FXML private HBox navPersonas;
     @FXML private HBox navBuscador;
 
-    // ─── Contenedor central ───────────────────────────────────────────────────
     @FXML private StackPane contentArea;
 
-    // ─── Cache de vistas ya cargadas ─────────────────────────────────────────
-    private final Map<String, Node>       viewCache       = new HashMap<>();
-    private final Map<String, Object>     controllerCache = new HashMap<>();
-    private       HBox                    currentNavItem  = null;
+    @FXML private ImageView topbarLogo;
+    @FXML private ImageView sidebarLogo;
 
-    // ─── Views disponibles ───────────────────────────────────────────────────
+    private final Map<String, Node>   viewCache       = new HashMap<>();
+    private final Map<String, Object> controllerCache = new HashMap<>();
+    private       HBox                currentNavItem  = null;
+    private       boolean             isAnimating     = false;
+
     private static final Map<String, String> VIEW_FXML = Map.of(
         "dashboard", "/com/example/controltotal_proyecto/fxml/views/DashboardView.fxml",
         "empresas",  "/com/example/controltotal_proyecto/fxml/views/EmpresasView.fxml",
@@ -52,15 +51,27 @@ public class MainController implements Initializable {
         "buscador",  "/com/example/controltotal_proyecto/fxml/views/BuscadorView.fxml"
     );
 
-    // ─── Init ─────────────────────────────────────────────────────────────────
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Cargar logo programáticamente (evita problemas de classpath en FXML)
+        try {
+            InputStream is = getClass().getResourceAsStream(
+                "/com/example/controltotal_proyecto/images/uninc_logo.png"
+            );
+            if (is != null) {
+                Image logo = new Image(is);
+                topbarLogo.setImage(logo);
+                sidebarLogo.setImage(logo);
+            } else {
+                System.err.println("Logo no encontrado en el classpath");
+            }
+        } catch (Exception e) {
+            System.err.println("Error cargando logo: " + e.getMessage());
+        }
+
         navigateTo("dashboard", navDashboard);
         refreshStats();
     }
-
-    // ─── Navegación ───────────────────────────────────────────────────────────
 
     @FXML private void onNavDashboard() { navigateTo("dashboard", navDashboard); }
     @FXML private void onNavEmpresas()  { navigateTo("empresas",  navEmpresas);  }
@@ -68,22 +79,61 @@ public class MainController implements Initializable {
     @FXML private void onNavBuscador()  { navigateTo("buscador",  navBuscador);  }
 
     private void navigateTo(String viewKey, HBox navItem) {
-        // Actualizar estado visual del ítem activo
+        if (isAnimating) return;
+        if (navItem == currentNavItem) return;
+
         if (currentNavItem != null) currentNavItem.getStyleClass().remove("nav-item-active");
         navItem.getStyleClass().add("nav-item-active");
         currentNavItem = navItem;
 
-        // Cargar vista (desde caché si ya existe)
-        Node view = viewCache.computeIfAbsent(viewKey, k -> loadView(k));
-        if (view == null) return;
+        Node newView = viewCache.computeIfAbsent(viewKey, k -> loadView(k));
+        if (newView == null) return;
 
-        // Mostrar la vista en el contenedor central
-        contentArea.getChildren().setAll(view);
-
-        // Notificar al controlador de la vista que ha sido activada
         Object ctrl = controllerCache.get(viewKey);
         if (ctrl instanceof RefreshableController rc) {
             rc.onViewActivated();
+        }
+
+        if (contentArea.getChildren().isEmpty()) {
+            newView.setOpacity(0);
+            contentArea.getChildren().setAll(newView);
+            FadeTransition ft = new FadeTransition(Duration.millis(300), newView);
+            ft.setFromValue(0);
+            ft.setToValue(1);
+            ft.play();
+        } else {
+            Node oldView = contentArea.getChildren().get(0);
+            isAnimating = true;
+
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(150), oldView);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0);
+
+            TranslateTransition slideOut = new TranslateTransition(Duration.millis(150), oldView);
+            slideOut.setFromX(0);
+            slideOut.setToX(-15);
+
+            ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
+            out.setOnFinished(e -> {
+                newView.setOpacity(0);
+                newView.setTranslateX(15);
+                contentArea.getChildren().setAll(newView);
+
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(200), newView);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+
+                TranslateTransition slideIn = new TranslateTransition(Duration.millis(200), newView);
+                slideIn.setFromX(15);
+                slideIn.setToX(0);
+                slideIn.setInterpolator(Interpolator.EASE_OUT);
+
+                ParallelTransition in = new ParallelTransition(fadeIn, slideIn);
+                in.setOnFinished(ev -> isAnimating = false);
+                in.play();
+            });
+
+            out.play();
         }
 
         refreshStats();
@@ -96,8 +146,6 @@ public class MainController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node node = loader.load();
 
-            // 🔥 LA MAGIA DEFINITIVA: Bindings
-            // Obligamos a la vista cargada a copiar exactamente el ancho y alto del contenedor
             if (node instanceof javafx.scene.layout.Region region) {
                 region.prefWidthProperty().bind(contentArea.widthProperty());
                 region.prefHeightProperty().bind(contentArea.heightProperty());
@@ -117,25 +165,17 @@ public class MainController implements Initializable {
         }
     }
 
-    // ─── Estadísticas ─────────────────────────────────────────────────────────
-
     public void refreshStats() {
-        List<Empresa>  emps  = DatabaseManager.obtenerTodasLasEmpresas();
-        List<Persona>  pers  = DatabaseManager.obtenerTodasLasPersonas();
-
-        // Solo actualizamos los badges de arriba
+        List<Empresa> emps = DatabaseManager.obtenerTodasLasEmpresas();
+        List<Persona> pers = DatabaseManager.obtenerTodasLasPersonas();
         badgeEmpresas.setText(String.valueOf(emps.size()));
         badgePersonas.setText(String.valueOf(pers.size()));
     }
 
-    // ─── Interfaces para subcontroladores ────────────────────────────────────
-
-    /** Los controladores de vista implementan esta interfaz para recibir notificaciones. */
     public interface RefreshableController {
         void onViewActivated();
     }
 
-    /** Los controladores hijo implementan esta interfaz para acceder al MainController. */
     public interface ChildController {
         void setMainController(MainController main);
     }

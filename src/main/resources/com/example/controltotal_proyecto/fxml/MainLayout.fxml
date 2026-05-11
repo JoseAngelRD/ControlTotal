@@ -2,7 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -20,9 +20,13 @@
     <top>
         <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="16">
             <padding><Insets top="0" right="20" bottom="0" left="20"/></padding>
-            <HBox styleClass="topbar-logo" alignment="CENTER_LEFT" spacing="8">
+
+            <HBox styleClass="topbar-logo" alignment="CENTER_LEFT" spacing="14">
+                <ImageView fx:id="topbarLogo" styleClass="topbar-uninc-logo" fitHeight="30" preserveRatio="true" smooth="true"/>
+                <Region prefWidth="1" minWidth="1" maxWidth="1" styleClass="topbar-logo-divider"/>
                 <Label text="Control Total" styleClass="topbar-logo-text"/>
             </HBox>
+
             <Region HBox.hgrow="ALWAYS"/>
         </HBox>
     </top>
@@ -73,6 +77,12 @@
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS"/>
+
+                <VBox styleClass="sidebar-footer" alignment="CENTER" spacing="4">
+                    <padding><Insets top="12" right="16" bottom="16" left="16"/></padding>
+                    <ImageView fx:id="sidebarLogo" styleClass="sidebar-footer-logo" fitWidth="90" preserveRatio="true" smooth="true" opacity="0.35"/>
+                    <Label text="asesores legales asociados" styleClass="sidebar-footer-text"/>
+                </VBox>
 
             </VBox>
 

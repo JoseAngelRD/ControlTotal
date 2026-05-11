@@ -1310,3 +1310,188 @@
     -fx-border-color: #2a3347 transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MEJORAS VISUALES — UNINC  (añadido)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Logo UNINC en la topbar ────────────────────────────────────────────── */
+.topbar-uninc-logo {
+    -fx-opacity: 0.90;
+}
+
+.topbar-logo-divider {
+    -fx-background-color: #2a3050;
+    -fx-min-height: 22px;
+    -fx-max-height: 22px;
+}
+
+/* Texto "Control Total" más sobrio junto al logo */
+.topbar-logo-text {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #b4c5d6;
+    -fx-font-family: "Century Gothic", serif;
+    -fx-letter-spacing: 1px;
+}
+
+/* ── Pie del sidebar ────────────────────────────────────────────────────── */
+.sidebar-footer {
+    -fx-border-color: #2a3050;
+    -fx-border-width: 1 0 0 0;
+}
+
+.sidebar-footer-text {
+    -fx-text-fill: #4a5568;
+    -fx-font-size: 10px;
+    -fx-font-style: italic;
+}
+
+/* ── Nav items: hover con glow UNINC verde ──────────────────────────────── */
+.nav-item {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-border-color: transparent;
+    /* Transición suave: JavaFX no soporta CSS transitions nativas,
+       el efecto se hace vía el hover con glow */
+}
+
+.nav-item:hover {
+    -fx-background-color: linear-gradient(to right, rgba(0,184,148,0.08), rgba(0,184,148,0.02));
+    -fx-border-color: rgba(0,184,148,0.25);
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.18), 8, 0, 0, 0);
+}
+
+.nav-item:hover .nav-text {
+    -fx-text-fill: #e2e8f0;
+}
+
+.nav-item:hover .nav-icon {
+    -fx-text-fill: #00b894;
+}
+
+/* Item activo: borde izquierdo verde UNINC */
+.nav-item-active {
+    -fx-background-color: linear-gradient(to right, rgba(0,184,148,0.14), rgba(0,184,148,0.03));
+    -fx-border-color: #00b894;
+    -fx-border-width: 0 0 0 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.12), 6, 0, 0, 0);
+}
+
+.nav-item-active .nav-text {
+    -fx-text-fill: #00b894;
+    -fx-font-weight: bold;
+}
+
+.nav-item-active .nav-icon {
+    -fx-text-fill: #00b894;
+}
+
+/* ── Botones primarios: usar verde UNINC ────────────────────────────────── */
+.btn-primary {
+    -fx-background-color: #00b894;
+    -fx-text-fill: #0f1117;
+    -fx-border-color: #00b894;
+    -fx-border-width: 1px;
+    -fx-font-weight: bold;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #00a381;
+    -fx-border-color: #00a381;
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.35), 10, 0, 0, 2);
+}
+
+/* ── Botones secundarios hover mejorado ─────────────────────────────────── */
+.btn-secondary:hover {
+    -fx-background-color: #252b3d;
+    -fx-border-color: #00b894;
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.12), 6, 0, 0, 0);
+}
+
+/* ── Badge de navegación: verde UNINC ───────────────────────────────────── */
+.nav-badge {
+    -fx-background-color: #00b894;
+    -fx-text-fill: #0f1117;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-padding: 2 6 2 6;
+    -fx-min-width: 20px;
+    -fx-alignment: center;
+}
+
+/* ── Topbar: sutil glow verde en el borde inferior ──────────────────────── */
+.topbar {
+    -fx-background-color: #171b26;
+    -fx-border-color: #00b894;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.08), 8, 0, 0, 2);
+}
+
+/* ── KPI cards: acento verde UNINC ──────────────────────────────────────── */
+.kpi-card-green { -fx-background-color: #0d2e24; }
+
+/* ── Filtros activos: verde UNINC ───────────────────────────────────────── */
+.filter-chip:hover {
+    -fx-border-color: #00b894;
+    -fx-text-fill: #00b894;
+}
+
+.filter-chip:selected {
+    -fx-background-color: rgba(0,184,148,0.12);
+    -fx-border-color: #00b894;
+    -fx-text-fill: #00b894;
+}
+
+/* ── Botones de card: verde UNINC para carpeta ───────────────────────────── */
+.btn-card-folder {
+    -fx-background-color: rgba(0,184,148,0.10);
+    -fx-text-fill: #00b894;
+    -fx-border-color: rgba(0,184,148,0.30);
+}
+.btn-card-folder:hover {
+    -fx-background-color: rgba(0,184,148,0.20);
+    -fx-border-color: #00b894;
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.25), 8, 0, 0, 0);
+}
+
+/* ── Fila de resultados del buscador ─────────────────────────────────────── */
+.result-row:hover {
+    -fx-background-color: #1a2430;
+    -fx-border-color: rgba(0,184,148,0.20);
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.08), 6, 0, 0, 0);
+}
+
+/* ── Empresa card hover ──────────────────────────────────────────────────── */
+.empresa-card:hover {
+    -fx-background-color: #1e2740;
+    -fx-border-color: rgba(0,184,148,0.30);
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.12), 10, 0, 0, 3);
+}
+
+/* ── Form input focus: verde UNINC ─────────────────────────────────────── */
+.form-input:focused {
+    -fx-border-color: #00b894;
+    -fx-effect: dropshadow(gaussian, rgba(0,184,148,0.20), 6, 0, 0, 0);
+}
+
+.form-select:focused {
+    -fx-border-color: #00b894;
+}
+
+/* ── Scrollbar thumb: verde muy sutil ──────────────────────────────────── */
+.scroll-bar .thumb:hover {
+    -fx-background-color: #00b894;
+    -fx-opacity: 0.5;
+}
+
+/* ── Tabla: fila hover con acento verde ────────────────────────────────── */
+.data-table .table-row-cell:hover {
+    -fx-background-color: rgba(0,184,148,0.05);
+}
+
