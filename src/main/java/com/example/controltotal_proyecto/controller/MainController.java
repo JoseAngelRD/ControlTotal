@@ -55,13 +55,24 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // Cargar logo programáticamente (evita problemas de classpath en FXML)
         try {
-            InputStream is = getClass().getResourceAsStream(
+            InputStream logo_uning = getClass().getResourceAsStream(
                 "/com/example/controltotal_proyecto/images/uninc_logo.png"
             );
-            if (is != null) {
-                Image logo = new Image(is);
+            InputStream logo_app = getClass().getResourceAsStream(
+                    "/com/example/controltotal_proyecto/images/logo_app.png"
+            );
+            if (logo_uning != null && logo_app!=null) {
+                Image logo = new Image(logo_uning);
                 topbarLogo.setImage(logo);
                 sidebarLogo.setImage(logo);
+
+                Image app_icon = new Image(logo_app);
+
+                javafx.application.Platform.runLater(() -> {
+                    if (contentArea.getScene() != null && contentArea.getScene().getWindow() instanceof javafx.stage.Stage stage) {
+                        stage.getIcons().setAll(app_icon);
+                    }
+                });
             } else {
                 System.err.println("Logo no encontrado en el classpath");
             }

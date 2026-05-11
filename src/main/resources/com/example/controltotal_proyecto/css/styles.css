@@ -735,6 +735,7 @@
 .dialog-icon-text {
     -fx-font-size: 18px;
     -fx-alignment: center;
+    -fx-text-fill: #ffffff;
 }
 
 .dialog-title {
@@ -1284,7 +1285,7 @@
 
 /* ── Formulario inline: sin marco, ocupa todo ───────────────────── */
 .form-inline-root {
-    -fx-background-color: transparent; /* O usa #0f1117 si lo prefieres */
+    -fx-background-color: #0f1117; /* O usa #0f1117 si lo prefieres */
     -fx-border-color: transparent;
     -fx-padding: 0;
 }
@@ -1493,5 +1494,74 @@
 /* ── Tabla: fila hover con acento verde ────────────────────────────────── */
 .data-table .table-row-cell:hover {
     -fx-background-color: rgba(0,184,148,0.05);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NUEVOS ESTILOS — parche de mejoras
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Botón "Ver Contacto" (amarillo dorado) ──────────────────────────────── */
+.btn-card-contact {
+    -fx-background-color: rgba(201,168,76,0.14);
+    -fx-text-fill: #d4a820;
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(201,168,76,0.40);
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 6 14 6 14;
+}
+.btn-card-contact:hover {
+    -fx-background-color: rgba(201,168,76,0.26);
+    -fx-border-color: #c9a84c;
+    -fx-text-fill: #f0c040;
+    -fx-effect: dropshadow(gaussian, rgba(201,168,76,0.30), 8, 0, 0, 0);
+}
+
+/* ── ComboBox en formulario: ancho fijo (no crece al seleccionar) ─────────── */
+/* La llave es pref-width 0 en CSS; el HBox padre con hgrow=ALWAYS
+   controla el ancho real. Esto evita que el skin reajuste el ancho
+   al mostrar el item seleccionado. */
+.form-select {
+    -fx-pref-width: 0;
+    -fx-min-width: 80px;
+}
+
+/* Celda del botón del ComboBox: recorte sin "..." para no desbordar */
+.form-select > .combo-box-button-cell {
+    -fx-text-overrun: CLIP;
+}
+
+/* ── Monograma de tarjeta: base sin font-size (Java la sobreescribe) ──────── */
+/* La clase card-monogram ya existe; aquí sólo ajustamos lo necesario
+   para que funcione con la fuente adaptativa aplicada por Java. */
+.card-monogram {
+    /* font-size se aplica inline desde Java según longitud de abreviatura */
+    -fx-text-overrun: CLIP;   /* sin "..." si algo se sale */
+    -fx-wrap-text: false;
+}
+
+/* ── Panel "Ver Contacto": fondo igual que el resto de la app ─────────────── */
+.contacto-panel-root {
+    -fx-background-color: #0f1117;
+}
+
+.btn-card-volver {
+    -fx-background-color: #323a58;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #4a547d;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+.btn-card-volver:hover {
+    -fx-background-color: #3d466e;
+    -fx-border-color: #4f7dff;
 }
 

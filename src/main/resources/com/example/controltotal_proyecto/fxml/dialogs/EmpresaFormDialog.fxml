@@ -54,14 +54,14 @@
             <VBox spacing="6">
                 <padding><Insets top="12" bottom="0"/></padding>
                 <Label text="DENOMINACIÓN SOCIAL *" styleClass="form-label"/>
-                <TextField fx:id="txtDenominacion" promptText="Ej: Muebles Alejandro SL" styleClass="form-input"/>
+                <TextField fx:id="txtDenominacion" styleClass="form-input"/>
             </VBox>
 
             <HBox spacing="14">
                 <padding><Insets top="12" bottom="0"/></padding>
                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="ABREVIATURA  ✨ Auto" styleClass="form-label"/>
-                    <TextField fx:id="txtAbreviatura" promptText="Ej: MA" styleClass="form-input"/>
+                    <TextField fx:id="txtAbreviatura" styleClass="form-input"/>
                     <HBox styleClass="abr-preview-box" alignment="CENTER_LEFT" spacing="10">
                         <padding><Insets top="6" right="12" bottom="6" left="12"/></padding>
                         <Label text="Vista previa:" styleClass="form-hint"/>
@@ -146,7 +146,7 @@
                 </VBox>
                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="MÓVIL" styleClass="form-label"/>
-                    <TextField fx:id="txtCMovil" promptText="600 000 000" styleClass="form-input"/>
+                    <TextField fx:id="txtCMovil" promptText="600111222" styleClass="form-input"/>
                 </VBox>
                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="EMAIL" styleClass="form-label"/>

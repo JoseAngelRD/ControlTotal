@@ -78,10 +78,10 @@
 
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <VBox styleClass="sidebar-footer" alignment="CENTER" spacing="4">
-                    <padding><Insets top="12" right="16" bottom="16" left="16"/></padding>
-                    <ImageView fx:id="sidebarLogo" styleClass="sidebar-footer-logo" fitWidth="90" preserveRatio="true" smooth="true" opacity="0.35"/>
-                    <Label text="asesores legales asociados" styleClass="sidebar-footer-text"/>
+                <VBox styleClass="sidebar-footer" alignment="CENTER" spacing="8">
+                    <padding><Insets top="12" right="20" bottom="24" left="20"/></padding>
+                    <ImageView fx:id="sidebarLogo" fitWidth="210" preserveRatio="true" smooth="true" opacity="0.8"/>
+                    <Label text="asesores legales asociados" styleClass="sidebar-footer-text" style="-fx-font-size: 11px; -fx-opacity: 0.6; -fx-text-fill: white;"/>
                 </VBox>
 
             </VBox>

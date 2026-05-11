@@ -5,6 +5,7 @@ import com.example.controltotal_proyecto.entities.Empresa;
 import com.example.controltotal_proyecto.entities.Persona;
 import com.example.controltotal_proyecto.service.EmpresaService;
 import com.example.controltotal_proyecto.service.PersonaService;
+import com.example.controltotal_proyecto.util.AlertaUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -13,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,11 +26,11 @@ import java.util.function.Consumer;
  * Controlador del formulario de creación/edición de Empresa.
  *
  * CAMBIOS respecto a la versión anterior:
- *  - Ya NO cierra ningún Stage. En su lugar llama a {@link #closeAction}
- *    (un Runnable inyectado por EmpresasController) cuando el usuario
- *    pulsa Cancelar o guarda con éxito.
- *  - Método {@link #setCloseAction(Runnable)} para que el controlador
- *    padre registre la acción de "volver a la lista".
+ *  - Validación de formato CIF: Letra + 8 dígitos (ej: B12345678).
+ *  - El campo Abreviatura es obligatorio (no se auto-genera si está vacío al guardar).
+ *  - Los ComboBoxes del formulario tienen ancho fijo (no crecen al seleccionar).
+ *  - Las alertas de error muestran el estilo personalizado (fondo azul, icono amarillo).
+ *  - Ya NO cierra ningún Stage. En su lugar llama a {@link #closeAction}.
  */
 public class EmpresaFormController implements Initializable {
 
@@ -63,23 +65,35 @@ public class EmpresaFormController implements Initializable {
     // ─── Estado interno ───────────────────────────────────────────────────────
     private Empresa           empresaEditar;
     private Consumer<Empresa> callback;
-    private Runnable          closeAction;          // ← NUEVO: volver a la lista
+    private Runnable          closeAction;
     private final List<Persona> personasSeleccionadas = new ArrayList<>();
 
     // ─── Init ─────────────────────────────────────────────────────────────────
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        comboFormaSocial.getItems().addAll("SL.", "SLL.", "SLP.", "SA.", "SAL.", "Sdad.Coop.And.", "PF.", "Fund.", "Asoc.", "SC.", "SCP.", "UTE.");  //CB?
+        comboFormaSocial.getItems().addAll(
+            "SL.", "SLL.", "SLP.", "SA.", "SAL.",
+            "Sdad.Coop.And.", "PF.", "Fund.", "Asoc.", "SC.", "SCP.", "UTE."
+        );
         comboServicio.getItems().addAll(empService.getServicios());
         comboDelegacion.getItems().addAll(empService.getDelegaciones());
         comboAgente.getItems().addAll(empService.getAgentes());
         comboEstado.getItems().addAll("Activo", "Pasivo");
         comboEstado.setValue("Activo");
 
+        // Fijar ancho de los ComboBoxes para que no crezcan al seleccionar
+        fijarAnchoCombo(comboFormaSocial);
+        fijarAnchoCombo(comboServicio);
+        fijarAnchoCombo(comboDelegacion);
+        fijarAnchoCombo(comboAgente);
+        fijarAnchoCombo(comboEstado);
+
         txtDenominacion.textProperty().addListener((obs, o, n) -> {
-            if (empresaEditar == null)
+            // Auto-generar abreviatura SÓLO al crear (no al editar)
+            if (empresaEditar == null && txtAbreviatura.getText().isBlank()) {
                 txtAbreviatura.setText(empService.generarAbreviatura(n));
+            }
             actualizarPreviews();
             actualizarRuta();
         });
@@ -93,20 +107,23 @@ public class EmpresaFormController implements Initializable {
     }
 
     /**
-     * Registra el Runnable que se ejecuta para "cerrar" el formulario
-     * (volver a la vista lista). Llamado por EmpresasController.
-     *
-     * @param closeAction acción a ejecutar al cerrar/cancelar
+     * Fija el ancho preferido de un ComboBox al valor calculado tras añadir los items,
+     * evitando que crezca al seleccionar una opción más larga.
      */
+    private void fijarAnchoCombo(ComboBox<?> combo) {
+        combo.setMaxWidth(Double.MAX_VALUE);
+        // Se marca para que el HBox padre controle el ancho mediante HGROW
+        combo.setPrefWidth(0);
+        combo.setMinWidth(80);
+    }
+
+    /** Registra el Runnable que vuelve a la vista lista al cancelar / guardar. */
     public void setCloseAction(Runnable closeAction) {
         this.closeAction = closeAction;
     }
 
     /**
      * Inicializa el formulario con una empresa existente (edición) o null (nueva).
-     *
-     * @param empresa  null = nueva empresa; not null = editar
-     * @param callback llamado con la empresa guardada al confirmar
      */
     public void init(Empresa empresa, Consumer<Empresa> callback) {
         this.empresaEditar = empresa;
@@ -146,8 +163,8 @@ public class EmpresaFormController implements Initializable {
     }
 
     private void actualizarRuta() {
-        String estado     = comboEstado.getValue();
-        String nombre     = txtDenominacion.getText().trim();
+        String estado      = comboEstado.getValue();
+        String nombre      = txtDenominacion.getText().trim();
         String formaSocial = comboFormaSocial.getValue();
 
         if (nombre.isBlank()) {
@@ -227,7 +244,7 @@ public class EmpresaFormController implements Initializable {
         vboxPersonas.getChildren().add(card);
     }
 
-    // ─── Guardar ─────────────────────────────────────────────────────────────
+    // ─── Guardar ──────────────────────────────────────────────────────────────
 
     @FXML private void onGuardar() {
         if (!validar()) return;
@@ -239,9 +256,8 @@ public class EmpresaFormController implements Initializable {
         e.setDenominacionSocial(txtDenominacion.getText().trim());
         e.setFormaSocial(comboFormaSocial.getValue());
         e.setActivo(esActivo);
-        e.setAbreviatura(txtAbreviatura.getText().isBlank()
-                ? empService.generarAbreviatura(e.getDenominacionSocial())
-                : txtAbreviatura.getText().trim());
+        // Abreviatura ya validada como no vacía → usar directamente
+        e.setAbreviatura(txtAbreviatura.getText().trim());
         e.setServicio(comboServicio.getValue());
         e.setDelegacion(comboDelegacion.getValue());
         e.setAgenteContable(comboAgente.getValue());
@@ -279,23 +295,16 @@ public class EmpresaFormController implements Initializable {
             if (callback != null) callback.accept(e);
             cerrar();
         } else {
-            new Alert(Alert.AlertType.ERROR,
-                    "No se pudo guardar la empresa. Revisa los datos.").show();
+            mostrarAlerta("No se pudo guardar la empresa. Revisa los datos.");
         }
     }
 
-    /**
-     * Cancelar: ejecuta closeAction si está disponible;
-     * si no (p.ej. lanzado como Stage legacy), cierra el Stage.
-     */
     @FXML private void onCancelar() { cerrar(); }
 
     private void cerrar() {
         if (closeAction != null) {
-            // Modo inline: volver a la lista sin cerrar ninguna ventana
             closeAction.run();
         } else {
-            // Modo legacy (Stage independiente): cerrar ventana normalmente
             ((javafx.stage.Stage) txtNifCif.getScene().getWindow()).close();
         }
     }
@@ -303,17 +312,39 @@ public class EmpresaFormController implements Initializable {
     // ─── Validación ───────────────────────────────────────────────────────────
 
     private boolean validar() {
-        if (txtNifCif.getText().isBlank())           { mostrarReq("NIF/CIF");           return false; }
-        if (txtDenominacion.getText().isBlank())      { mostrarReq("Denominación Social"); return false; }
-        if (comboFormaSocial.getValue() == null)      { mostrarReq("Forma Social");       return false; }
-        if (comboServicio.getValue()    == null)      { mostrarReq("Servicio");            return false; }
-        if (comboDelegacion.getValue()  == null)      { mostrarReq("Delegación");          return false; }
-        if (comboAgente.getValue()      == null)      { mostrarReq("Agente Contable");     return false; }
+        // NIF/CIF: obligatorio
+        String cif = txtNifCif.getText().trim();
+        if (cif.isBlank()) {
+            mostrarReq("NIF/CIF");
+            return false;
+        }
+        // NIF/CIF: patrón letra + 8 dígitos
+        if (!cif.matches("[A-Za-z]\\d{8}")) {
+            mostrarAlerta("El formato del NIF/CIF no es válido.\nDebe ser: 1 letra + 8 dígitos\n(ej: B12345678).");
+            return false;
+        }
+
+        if (txtDenominacion.getText().isBlank())  { mostrarReq("Denominación Social"); return false; }
+        if (comboFormaSocial.getValue() == null)  { mostrarReq("Forma Social");        return false; }
+
+        // Abreviatura: obligatoria, no se auto-genera si está vacía
+        if (txtAbreviatura.getText().isBlank())   { mostrarReq("Abreviatura");          return false; }
+
+        if (comboServicio.getValue()   == null)   { mostrarReq("Servicio");             return false; }
+        if (comboDelegacion.getValue() == null)   { mostrarReq("Delegación");           return false; }
+        if (comboAgente.getValue()     == null)   { mostrarReq("Agente Contable");      return false; }
+
         return true;
     }
 
     private void mostrarReq(String campo) {
-        new Alert(Alert.AlertType.WARNING,
-                "El campo \"" + campo + "\" es obligatorio.").show();
+        mostrarAlerta("El campo \"" + campo + "\" es obligatorio.");
+    }
+
+    private void mostrarAlerta(String mensaje) {
+        Window owner = txtNifCif.getScene() != null
+                ? txtNifCif.getScene().getWindow()
+                : null;
+        AlertaUtil.mostrarAdvertencia(mensaje, owner);
     }
 }
