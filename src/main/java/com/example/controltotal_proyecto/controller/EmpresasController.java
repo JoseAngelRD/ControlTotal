@@ -15,6 +15,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.shape.Circle;
 import javafx.scene.layout.*;
 
 import java.io.IOException;
@@ -29,7 +32,7 @@ import java.util.stream.Collectors;
  * CAMBIOS respecto a la versión anterior:
  *  - Botón "Ver Contacto" (amarillo) a la derecha de "Abrir Directorios".
  *  - Panel inline de contacto que muestra Nombre, Apellidos, NIF, Móvil y Correo.
- *  - Monograma con fuente adaptativa (no trunca abreviaturas de hasta 6 chars).
+ *  - Monograma con fuente adaptativa que muestra la abreviatura completa.
  *  - Etiquetas de campo sin "..." (OverrunStyle → clip silencioso).
  *  - rightArea con ancho mínimo protegido para que los botones nunca se superpongan.
  */
@@ -165,25 +168,30 @@ public class EmpresasController implements Initializable,
      */
     private Node crearTarjeta(Empresa e) {
 
-        /* ── Monograma con fuente adaptativa (hasta 6 chars sin "...") ── */
+        /* ── Monograma con fuente adaptativa (sin recorte de longitud) ── */
         String abr = (e.getAbreviatura() != null && !e.getAbreviatura().isBlank())
-                ? e.getAbreviatura().substring(0, Math.min(6, e.getAbreviatura().length()))
+                ? e.getAbreviatura()
                 : iniciales(e.getDenominacionSocial());
 
         Label monogram = new Label(abr);
         monogram.getStyleClass().add("card-monogram");
-        monogram.setMinWidth(82);
-        monogram.setPrefWidth(82);
-        monogram.setMaxWidth(82);
+
+        // Ancho adaptativo para que SIEMPRE quepan todas las letras.
+        // Se usa un factor mayor para acomodar el tamaño de letra grande y fijo.
+        int len = abr.length();
+        double monoWidth = Math.max(70, (len * 16.0) + 24);
+
+        monogram.setMinWidth(monoWidth);
+        monogram.setPrefWidth(monoWidth);
+        monogram.setMaxWidth(monoWidth);
         monogram.setMinHeight(64);
         monogram.setMaxHeight(64);
         monogram.setAlignment(Pos.CENTER);
         monogram.setTextOverrun(javafx.scene.control.OverrunStyle.CLIP);
+        monogram.setPadding(new Insets(0, 12, 0, 12));
 
-        // Adaptar tamaño de fuente según longitud para que quepa sin truncar
-        int len = abr.length();
-        String fontSize = len <= 2 ? "26px" : len <= 4 ? "20px" : "15px";
-        monogram.setStyle("-fx-font-size: " + fontSize + ";");
+        // Tamaño de letra fijo y grande (24px) como solicitado
+        monogram.setStyle("-fx-font-size: 24px;");
 
         /* ── Columnas de info ── */
         VBox colDenom = campoCard("Denominación Social",
@@ -330,80 +338,120 @@ public class EmpresasController implements Initializable,
 
     /**
      * Muestra un panel inline con los datos de contacto de la empresa.
-     * Nombre/Apellidos se extraen del campo contactoNombre (guardado combinado).
-     * El NIF se obtiene del primer persona vinculada a la empresa en BD.
+     * Diseño renovado: avatar circular naranja + nombre en mayúsculas +
+     * botón Volver alineado a la derecha; filas con icono, etiqueta y valor.
      */
     private void verContacto(Empresa empresa) {
-        // Obtener datos
-        String fullName   = nvlS(empresa.getContactoNombre());
-        int spaceIdx      = fullName.indexOf(' ');
-        String nombre     = spaceIdx > 0 ? fullName.substring(0, spaceIdx)        : fullName;
-        String apellidos  = spaceIdx > 0 ? fullName.substring(spaceIdx + 1).trim() : "—";
 
-        String movil  = nvlS(empresa.getContactoMovil());
-        String correo = nvlS(empresa.getContactoMail());
+        // ── Extraer datos ──────────────────────────────────────────────────────
+        String nombre    = nvlS(empresa.getContactoNombre());
+        String movil     = nvlS(empresa.getContactoMovil());
+        String correo    = nvlS(empresa.getContactoMail());
+        String nif       = nvlS(empresa.getContactoDNI());
 
-        // NIF: tomar del primer persona vinculado (no se almacena directamente en empresa)
-        List<Persona> vinculadas = DatabaseManager.obtenerPersonasDeEmpresa(empresa.getNifCif());
-        String nif = vinculadas.isEmpty() ? "—" : vinculadas.get(0).getNif();
+        // ── Cabecera superior: "Datos de Contacto" ────────────────────────────
+        VBox pageHeader = new VBox();
+        pageHeader.getStyleClass().add("page-header");
+        pageHeader.setPadding(new Insets(24, 28, 0, 28));
+        Label pageTitle = new Label("Datos de Contacto");
+        pageTitle.getStyleClass().add("page-title");
+        pageHeader.getChildren().add(pageTitle);
 
-        // ── Cabecera ──
-        VBox iconBox = new VBox();
-        iconBox.getStyleClass().addAll("dialog-icon", "dialog-icon-blue");
-        Label iconLbl = new Label("👤");
-        iconLbl.getStyleClass().add("dialog-icon-text");
-        iconBox.getChildren().add(iconLbl);
+        // ── Avatar circular con imagen persona_icon.png ───────────────────────
+        ImageView imgView = new ImageView();
+        try {
+            Image img = new Image(
+                    getClass().getResourceAsStream(
+                            "/com/example/controltotal_proyecto/images/persona_icon.png"),
+                    90, 90, true, true
+            );
+            imgView.setImage(img);
+        } catch (Exception ignored) { /* Imagen no disponible: avatar vacío */ }
+        imgView.setFitWidth(56);
+        imgView.setFitHeight(56);
+        imgView.setPreserveRatio(true);
 
-        Label titulo  = new Label("Datos de Contacto");
-        titulo.getStyleClass().add("dialog-title");
-        Label subtitu = new Label(nvlS(empresa.getDenominacionSocial()));
-        subtitu.getStyleClass().add("dialog-sub");
-        VBox tituloBox = new VBox(2, titulo, subtitu);
-        HBox.setHgrow(tituloBox, Priority.ALWAYS);
+        Circle clip = new Circle(36, 36, 36);
+        imgView.setClip(clip);
 
-        // ── Botón volver (estilo botón robusto gris) ──
+        StackPane avatarPane = new StackPane(imgView);
+
+        // ── Nombre completo en mayúsculas ─────────────────────────────────────
+        Label lblFullName = new Label(nombre.toUpperCase());
+        lblFullName.setStyle(
+                "-fx-text-fill: #ffffff;" +
+                        "-fx-font-size: 26px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-family: 'Century Gothic', serif;"
+        );
+        lblFullName.setWrapText(true);
+
+        // ── Nombre de la empresa (Naranja) ────────────────────────────────────
+        Label lblEmpresa = new Label(" | " + empresa.getDenominacionSocial().toUpperCase());
+        lblEmpresa.setStyle(
+                "-fx-text-fill: #FC7E65;" +
+                        "-fx-font-size: 26px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-family: 'Century Gothic', serif;"
+        );
+        lblEmpresa.setWrapText(true);
+
+        // Spacer para empujar el botón Volver a la derecha
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // ── Botón Volver ──────────────────────────────────────────────────────
         Button btnVolver = new Button("← Volver");
         btnVolver.getStyleClass().add("btn-card-volver");
-        
-        Runnable volver = () -> {
+        btnVolver.setOnAction(ev -> {
             vistaFormulario.setVisible(false);
             vistaFormulario.getChildren().clear();
             vistaLista.setVisible(true);
-        };
-        btnVolver.setOnAction(ev -> volver.run());
+        });
 
-        HBox header = new HBox(12, iconBox, tituloBox, btnVolver);
-        header.getStyleClass().add("dialog-header");
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(20, 24, 16, 24));
+        // ── Tarjeta de cabecera (avatar + nombre + volver) ────────────────────
+        HBox headerCard = new HBox(20, avatarPane, lblFullName, lblEmpresa, spacer, btnVolver);
+        headerCard.setAlignment(Pos.CENTER_LEFT);
+        headerCard.setPadding(new Insets(22, 24, 22, 24));
+        headerCard.setStyle(
+                "-fx-background-color: #161b2e;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #2a3347;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-width: 1;"
+        );
+        HBox headerWrapper = new HBox(headerCard);
+        headerWrapper.setPadding(new Insets(16, 28, 0, 28));
+        HBox.setHgrow(headerCard, Priority.ALWAYS);
+        headerCard.setMaxWidth(Double.MAX_VALUE);
 
-        Separator sep1 = new Separator();
-        sep1.getStyleClass().add("dialog-separator");
-
-        // ── Filas de datos ──
-        VBox content = new VBox(0);
-        content.setPadding(new Insets(28, 40, 28, 40));
-        content.setSpacing(0);
-
-        content.getChildren().addAll(
-                filaContacto("Nombre",    nombre,   "👤"),
-                filaContacto("Apellidos", apellidos, "📛"),
-                filaContacto("NIF",       nif,       "🖈"),
-                filaContacto("Móvil",     movil,     "✆"),
-                filaContacto("Correo",    correo,    "✉")
+        // ── Tarjeta de filas de datos ─────────────────────────────────────────
+        VBox rowsCard = new VBox(0);
+        rowsCard.setStyle(
+                "-fx-background-color: #161b2e;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #2a3347;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-padding: 0 24 0 24;"
+        );
+        rowsCard.getChildren().addAll(
+                filaContacto("Nombre",   nombre,   "\uD83D\uDC64"),   // 👤
+                filaContacto("NIF",       nif,       "\uD83D\uDCCB"),   // 📋
+                filaContacto("Móvil",     movil,     "\uD83D\uDCF1"),   // 📱
+                filaContacto("Correo",    correo,    "\u2709")          // ✉
         );
 
-        ScrollPane scroll = new ScrollPane(content);
-        scroll.setFitToWidth(true);
-        scroll.getStyleClass().add("dialog-scroll");
-        VBox.setVgrow(scroll, Priority.ALWAYS);
+        VBox rowsWrapper = new VBox(rowsCard);
+        rowsWrapper.setPadding(new Insets(16, 28, 28, 28));
+        VBox.setVgrow(rowsWrapper, Priority.ALWAYS);
 
-        // ── Raíz del panel ──
-        VBox panel = new VBox(header, sep1, scroll);
-        panel.getStyleClass().add("form-inline-root");
+        // ── Panel raíz ────────────────────────────────────────────────────────
+        VBox panel = new VBox(pageHeader, headerWrapper, rowsWrapper);
+        panel.setStyle("-fx-background-color: #0f1117;");
         panel.setMaxWidth(Double.MAX_VALUE);
         panel.setMaxHeight(Double.MAX_VALUE);
-        VBox.setVgrow(panel, Priority.ALWAYS);
+        VBox.setVgrow(rowsWrapper, Priority.ALWAYS);
 
         panel.prefWidthProperty().bind(vistaFormulario.widthProperty());
         panel.prefHeightProperty().bind(vistaFormulario.heightProperty());
@@ -414,27 +462,45 @@ public class EmpresasController implements Initializable,
     }
 
     /**
-     * Crea una fila de dato de contacto con icono, etiqueta y valor.
+     * Crea una fila de dato de contacto: icono gris + etiqueta gris + valor blanco.
+     * Cada fila lleva separador inferior excepto la última (se aplica igual a todas
+     * por simplicidad; el CSS del último hijo puede quitarlo si se desea).
      */
     private HBox filaContacto(String etiqueta, String valor, String icono) {
-        Label lblIcono = new Label(icono.isBlank() ? "    " : icono);
-        lblIcono.setStyle("-fx-font-size: 18px; -fx-min-width: 30px; -fx-alignment: center; -fx-text-fill: white;");
 
-        Label lblEtiq = new Label(etiqueta);
-        lblEtiq.setStyle(
-            "-fx-text-fill: #8b9bb4; -fx-font-size: 13px; -fx-font-weight: bold; " +
-            "-fx-min-width: 100px;"
+        // Icono
+        Label lblIcono = new Label(icono);
+        lblIcono.setStyle(
+                "-fx-font-size: 17px;" +
+                        "-fx-min-width: 34px;" +
+                        "-fx-max-width: 34px;" +
+                        "-fx-alignment: center;" +
+                        "-fx-text-fill: #8b9bb4;"
         );
 
+        // Etiqueta (con ":")
+        Label lblEtiq = new Label(etiqueta + ":");
+        lblEtiq.setStyle(
+                "-fx-text-fill: #6b7a99;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-min-width: 110px;" +
+                        "-fx-max-width: 110px;"
+        );
+
+        // Valor
         Label lblVal = new Label(valor);
-        lblVal.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 15px;");
+        lblVal.setStyle("-fx-text-fill: #e8ecf4; -fx-font-size: 15px;");
         lblVal.setWrapText(true);
         HBox.setHgrow(lblVal, Priority.ALWAYS);
 
-        HBox fila = new HBox(14, lblIcono, lblEtiq, lblVal);
+        HBox fila = new HBox(12, lblIcono, lblEtiq, lblVal);
         fila.setAlignment(Pos.CENTER_LEFT);
-        fila.setPadding(new Insets(14, 0, 14, 0));
-        fila.setStyle("-fx-border-color: transparent transparent #2a3050 transparent; -fx-border-width: 0 0 1 0;");
+        fila.setPadding(new Insets(16, 0, 16, 0));
+        fila.setStyle(
+                "-fx-border-color: transparent transparent #252d47 transparent;" +
+                        "-fx-border-width: 0 0 1 0;"
+        );
         return fila;
     }
 

@@ -1534,12 +1534,12 @@
     -fx-text-overrun: CLIP;
 }
 
-/* ── Monograma de tarjeta: base sin font-size (Java la sobreescribe) ──────── */
-/* La clase card-monogram ya existe; aquí sólo ajustamos lo necesario
-   para que funcione con la fuente adaptativa aplicada por Java. */
+/* ── Monograma de tarjeta: fuente y overrun gestionados desde Java ──────────
+   El ancho también lo fija Java de forma adaptativa para que TODAS las letras
+   de la abreviatura quepan siempre. Aquí sólo ponemos los estilos decorativos. */
 .card-monogram {
     /* font-size se aplica inline desde Java según longitud de abreviatura */
-    -fx-text-overrun: CLIP;   /* sin "..." si algo se sale */
+    -fx-text-overrun: CLIP;
     -fx-wrap-text: false;
 }
 
@@ -1548,20 +1548,93 @@
     -fx-background-color: #0f1117;
 }
 
-.btn-card-volver {
-    -fx-background-color: #323a58;
+/* ── Tarjeta de cabecera (avatar + nombre + volver) ──────────────────────── */
+.contacto-header-card {
+    -fx-background-color: #161b2e;
+    -fx-background-radius: 10;
+    -fx-border-color: #2a3347;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+/* ── Avatar circular naranja (persona_icon.png) ─────────────────────────── */
+.contacto-avatar {
+    -fx-background-color: #d4683a;
+    -fx-background-radius: 36;
+    -fx-min-width:  72px;
+    -fx-min-height: 72px;
+    -fx-max-width:  72px;
+    -fx-max-height: 72px;
+}
+
+/* ── Nombre completo en la cabecera ──────────────────────────────────────── */
+.contacto-nombre {
     -fx-text-fill: #ffffff;
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
-    -fx-border-color: #4a547d;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Century Gothic", serif;
+}
+
+/* ── Tarjeta de filas de datos ───────────────────────────────────────────── */
+.contacto-rows-card {
+    -fx-background-color: #161b2e;
+    -fx-background-radius: 10;
+    -fx-border-color: #2a3347;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 0 24 0 24;
+}
+
+/* ── Fila de dato individual ─────────────────────────────────────────────── */
+.contacto-fila {
+    -fx-border-color: transparent transparent #252d47 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Última fila: sin separador inferior */
+.contacto-fila:last-child {
+    -fx-border-width: 0;
+}
+
+/* ── Icono de fila ───────────────────────────────────────────────────────── */
+.contacto-fila-icono {
+    -fx-font-size: 17px;
+    -fx-min-width: 34px;
+    -fx-max-width: 34px;
+    -fx-alignment: center;
+    -fx-text-fill: #8b9bb4;
+}
+
+/* ── Etiqueta de fila ────────────────────────────────────────────────────── */
+.contacto-fila-label {
+    -fx-text-fill: #6b7a99;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-min-width: 110px;
+    -fx-max-width: 110px;
+}
+
+/* ── Valor de fila ───────────────────────────────────────────────────────── */
+.contacto-fila-valor {
+    -fx-text-fill: #e8ecf4;
+    -fx-font-size: 15px;
+}
+
+.btn-card-volver {
+    -fx-background-color: #252e4a;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-border-color: #3d4d72;
     -fx-border-width: 1;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-padding: 8 16 8 16;
+    -fx-padding: 9 18 9 14;
     -fx-cursor: hand;
 }
 .btn-card-volver:hover {
-    -fx-background-color: #3d466e;
+    -fx-background-color: #2e3a5c;
     -fx-border-color: #4f7dff;
 }
+
 

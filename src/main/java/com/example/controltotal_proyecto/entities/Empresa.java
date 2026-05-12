@@ -22,6 +22,7 @@ public class Empresa implements Comparable<Empresa> {
     private final StringProperty  contactoNombre     = new SimpleStringProperty();
     private final StringProperty  contactoMovil      = new SimpleStringProperty();
     private final StringProperty  contactoMail       = new SimpleStringProperty();
+    private final StringProperty  contactoDNI       = new SimpleStringProperty();
     private final StringProperty  agenteContable     = new SimpleStringProperty();
     private final StringProperty  rutaDocumental     = new SimpleStringProperty();
     private final StringProperty  rutaCertElectronico= new SimpleStringProperty();
@@ -37,7 +38,7 @@ public class Empresa implements Comparable<Empresa> {
     /** Constructor completo para uso en servicio / base de datos */
     public Empresa(String nifCif, String denominacionSocial, String formaSocial,
                    boolean activo, String abreviatura, String contactoNombre,
-                   String contactoMovil, String contactoMail, String agenteContable,
+                   String contactoMovil, String contactoMail, String contactoDNI, String agenteContable,
                    String servicio, String delegacion, String fechaAlta,
                    String rutaDocumental, String rutaCertElectronico, String rutaLog) {
         setNifCif(nifCif);
@@ -48,6 +49,7 @@ public class Empresa implements Comparable<Empresa> {
         setContactoNombre(contactoNombre);
         setContactoMovil(contactoMovil);
         setContactoMail(contactoMail);
+        setContactoDNI(contactoDNI);
         setAgenteContable(agenteContable);
         setServicio(servicio);
         setDelegacion(delegacion);
@@ -80,6 +82,7 @@ public class Empresa implements Comparable<Empresa> {
     public StringProperty  contactoNombreProperty()      { return contactoNombre; }
     public StringProperty  contactoMovilProperty()       { return contactoMovil; }
     public StringProperty  contactoMailProperty()        { return contactoMail; }
+    public StringProperty  contactoDNIProperty()         { return contactoDNI; }
     public StringProperty  agenteContableProperty()      { return agenteContable; }
     public StringProperty  servicioProperty()            { return servicio; }
     public StringProperty  delegacionProperty()          { return delegacion; }
@@ -113,6 +116,9 @@ public class Empresa implements Comparable<Empresa> {
 
     public String  getContactoMail()         { return contactoMail.get(); }
     public void    setContactoMail(String v) { contactoMail.set(v); }
+
+    public String  getContactoDNI()         { return contactoDNI.get(); }
+    public void    setContactoDNI(String v) { contactoDNI.set(v); }
 
     public String  getAgenteContable()         { return agenteContable.get(); }
     public void    setAgenteContable(String v) { agenteContable.set(v); }

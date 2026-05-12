@@ -14,7 +14,7 @@ public class DatabaseManager {
     // ══════════════════════════════════════════════════════════════════════════
 
     public static boolean guardarEmpresa(Empresa e) {
-        String sql = "INSERT INTO empresas VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO empresas VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection c = ConexionBD.conectar();
              PreparedStatement ps = c.prepareStatement(sql)) {
             setEmpresaParams(ps, e);
@@ -34,7 +34,7 @@ public class DatabaseManager {
               denominacion_social=?, forma_social=?, activo=?, abreviatura=?,
               contacto_nombre=?, contacto_movil=?, contacto_mail=?, agente_contable=?,
               ruta_documental=?, ruta_cert_electronico=?, ruta_log=?,
-              servicio=?, delegacion=?, fecha_alta=?
+              servicio=?, delegacion=?, fecha_alta=?, contacto_dni=?
             WHERE nif_cif=?
             """;
         try (Connection c = ConexionBD.conectar();
@@ -54,6 +54,7 @@ public class DatabaseManager {
             ps.setString(13, e.getDelegacion());
             ps.setString(14, e.getFechaAlta());
             ps.setString(15, e.getNifCif());
+            ps.setString(16, e.getContactoDNI());
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
             System.err.println("❌ Error al actualizar empresa: " + ex.getMessage());
@@ -270,6 +271,7 @@ public class DatabaseManager {
         } else {
             ps.setString(15, e.getFechaAlta());          // <-- Mapeado a col 15
         }
+        ps.setString(16, e.getContactoDNI());
     }
 
     private static void setPersonaParams(PreparedStatement ps, Persona p) throws SQLException {
@@ -294,6 +296,7 @@ public class DatabaseManager {
         e.setContactoNombre(rs.getString("contacto_nombre"));
         e.setContactoMovil(rs.getString("contacto_movil"));
         e.setContactoMail(rs.getString("contacto_mail"));
+        e.setContactoDNI(rs.getString("contacto_dni"));
         e.setAgenteContable(rs.getString("agente_contable"));
         e.setServicio(rs.getString("servicio"));
         e.setDelegacion(rs.getString("delegacion"));

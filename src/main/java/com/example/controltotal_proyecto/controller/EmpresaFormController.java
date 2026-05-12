@@ -267,6 +267,7 @@ public class EmpresaFormController implements Initializable {
         e.setContactoNombre(nombreCompleto);
         e.setContactoMovil(txtCMovil.getText().trim());
         e.setContactoMail(txtCEmail.getText().trim());
+        e.setContactoDNI(txtCNif.getText().trim());
 
         boolean ok;
         if (empresaEditar == null) {
