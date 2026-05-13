@@ -129,12 +129,8 @@
             <HBox spacing="14">
                 <padding><Insets top="8" bottom="0"/></padding>
                 <VBox spacing="6" HBox.hgrow="ALWAYS">
-                    <Label text="NOMBRE" styleClass="form-label"/>
+                    <Label text="NOMBRE y APELLIDOS" styleClass="form-label"/>
                     <TextField fx:id="txtCNombre" promptText="Nombre" styleClass="form-input"/>
-                </VBox>
-                <VBox spacing="6" HBox.hgrow="ALWAYS">
-                    <Label text="APELLIDOS" styleClass="form-label"/>
-                    <TextField fx:id="txtCApellidos" promptText="Apellidos" styleClass="form-input"/>
                 </VBox>
             </HBox>
 

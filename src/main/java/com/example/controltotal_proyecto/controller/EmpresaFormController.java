@@ -16,6 +16,14 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
+//mover carpetas de pasivo a activo, o cambiar nombre
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.io.IOException;
+import java.util.Objects;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +42,8 @@ import java.util.function.Consumer;
  */
 public class EmpresaFormController implements Initializable {
 
+    private String inicioRuta = "C:/Control_Total/";   //  Y:/DocumOfi/
+
     // ─── Empresa ──────────────────────────────────────────────────────────────
     @FXML private TextField        txtNifCif;
     @FXML private ComboBox<String> comboFormaSocial;
@@ -48,7 +58,6 @@ public class EmpresaFormController implements Initializable {
 
     // ─── Primer contacto ──────────────────────────────────────────────────────
     @FXML private TextField txtCNombre;
-    @FXML private TextField txtCApellidos;
     @FXML private TextField txtCNif;
     @FXML private TextField txtCMovil;
     @FXML private TextField txtCEmail;
@@ -67,6 +76,9 @@ public class EmpresaFormController implements Initializable {
     private Consumer<Empresa> callback;
     private Runnable          closeAction;
     private final List<Persona> personasSeleccionadas = new ArrayList<>();
+
+    //Interfaz formulario
+    @FXML private Label dialogTitle;
 
     // ─── Init ─────────────────────────────────────────────────────────────────
 
@@ -139,6 +151,11 @@ public class EmpresaFormController implements Initializable {
             comboDelegacion.setValue(empresa.getDelegacion());
             comboAgente.setValue(empresa.getAgenteContable());
             comboEstado.setValue(empresa.isActivo() ? "Activo" : "Pasivo");
+            //contacto
+            txtCNombre.setText(empresa.getContactoNombre());
+            txtCNif.setText(empresa.getContactoDNI());
+            txtCMovil.setText(empresa.getContactoMovil());
+            txtCEmail.setText(empresa.getContactoMail());
 
             List<Persona> personasVinculadas =
                     DatabaseManager.obtenerPersonasDeEmpresa(empresa.getNifCif());
@@ -148,7 +165,12 @@ public class EmpresaFormController implements Initializable {
                     agregarTarjetaPersona(p);
                 }
             });
+
+            dialogTitle.setText("Modificar Empresa");
+        } else {
+            dialogTitle.setText("Nueva Empresa");
         }
+
         actualizarPreviews();
         actualizarRuta();
     }
@@ -162,18 +184,35 @@ public class EmpresaFormController implements Initializable {
         lblAbrPreview.setText(abr.isBlank() ? "—" : abr);
     }
 
-    private void actualizarRuta() {
-        String estado      = comboEstado.getValue();
-        String nombre      = txtDenominacion.getText().trim();
-        String formaSocial = comboFormaSocial.getValue();
+    private String construirRuta(boolean isActivo, String denominacion, String formaSocial) {
+        String estado = isActivo ? "Activo" : "Pasivo";
+        String sufijoForma = (formaSocial != null && !formaSocial.isBlank()) ? " " + formaSocial : "";
+        return inicioRuta + estado + "/Empresas/" + denominacion + sufijoForma;
+    }
 
+    private void actualizarRuta() {
+        String nombre = txtDenominacion.getText().trim();
         if (nombre.isBlank()) {
-            lblRutaPreview.setText("Y:/DocumOfi/" + estado + "/Empresas");
+            lblRutaPreview.setText(inicioRuta + comboEstado.getValue() + "/Empresas");
         } else {
-            String sufijoForma = (formaSocial != null && !formaSocial.isBlank())
-                    ? " " + formaSocial : "";
-            lblRutaPreview.setText(
-                    "Y:/DocumOfi/" + estado + "/Empresas/" + nombre + sufijoForma + "/");
+            lblRutaPreview.setText(construirRuta("Activo".equals(comboEstado.getValue()), nombre, comboFormaSocial.getValue()) + "/");
+        }
+    }
+
+    private void moverCarpetaFisica(String rutaOrigen, String rutaDestino) {
+        Path origen = Paths.get(rutaOrigen);
+        Path destino = Paths.get(rutaDestino);
+        if (Files.exists(origen) && !rutaOrigen.equals(rutaDestino)) {
+            try {
+                // Aseguramos que la carpeta padre (Activo/Empresas o Pasivo/Empresas) exista
+                Files.createDirectories(destino.getParent());
+                // Movemos la carpeta
+                Files.move(origen, destino, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                mostrarAlerta("Se guardó la empresa en base de datos, pero hubo un error al mover la carpeta de archivos.\n" +
+                        "Por favor, muévela manualmente de:\n" + rutaOrigen + "\na:\n" + rutaDestino);
+            }
         }
     }
 
@@ -226,8 +265,7 @@ public class EmpresaFormController implements Initializable {
         Button btnAuto = new Button("⭐ Principal");
         btnAuto.getStyleClass().add("btn-ghost");
         btnAuto.setOnAction(e -> {
-            txtCNombre.setText(p.getNombre()        != null ? p.getNombre()        : "");
-            txtCApellidos.setText(p.getApellidos()  != null ? p.getApellidos()     : "");
+            txtCNombre.setText(p.getNombre()        != null &&  p.getApellidos()  != null? p.getNombre() + " " + p.getApellidos()        : "");
             txtCNif.setText(p.getNif()              != null ? p.getNif()           : "");
             txtCMovil.setText(p.getContactoMovil()  != null ? p.getContactoMovil() : "");
             txtCEmail.setText(p.getContactoMail()   != null ? p.getContactoMail()  : "");
@@ -250,26 +288,45 @@ public class EmpresaFormController implements Initializable {
         if (!validar()) return;
 
         boolean esActivo = "Activo".equals(comboEstado.getValue());
+        String nombreNuevo = txtDenominacion.getText().trim();
+        String formaNueva = comboFormaSocial.getValue();
 
+        // --- 1. DETECTAR CAMBIOS DE RUTA (Antes de modificar el objeto) ---
+        boolean requiereMoverCarpeta = false;
+        String rutaAntigua = null;
+        String rutaNueva = null;
+
+        if (empresaEditar != null) {
+            String nombreViejo = empresaEditar.getDenominacionSocial();
+            String formaVieja = empresaEditar.getFormaSocial();
+            boolean estadoViejo = empresaEditar.isActivo();
+
+            // Si cambia el estado, el nombre o la forma social, la ruta de la carpeta cambia.
+            if (estadoViejo != esActivo || !nombreViejo.equals(nombreNuevo) || !Objects.equals(formaVieja, formaNueva)) {
+                rutaAntigua = construirRuta(estadoViejo, nombreViejo, formaVieja);
+                rutaNueva = construirRuta(esActivo, nombreNuevo, formaNueva);
+                requiereMoverCarpeta = true;
+            }
+        }
+
+        // --- 2. ASIGNACIÓN DE DATOS ---
         Empresa e = empresaEditar != null ? empresaEditar : new Empresa();
         e.setNifCif(txtNifCif.getText().trim());
-        e.setDenominacionSocial(txtDenominacion.getText().trim());
-        e.setFormaSocial(comboFormaSocial.getValue());
+        e.setDenominacionSocial(nombreNuevo);
+        e.setFormaSocial(formaNueva);
         e.setActivo(esActivo);
-        // Abreviatura ya validada como no vacía → usar directamente
         e.setAbreviatura(txtAbreviatura.getText().trim());
         e.setServicio(comboServicio.getValue());
         e.setDelegacion(comboDelegacion.getValue());
         e.setAgenteContable(comboAgente.getValue());
 
-        String nombreCompleto = (txtCNombre.getText().trim()
-                + " " + txtCApellidos.getText().trim()).trim();
-        e.setContactoNombre(nombreCompleto);
+        e.setContactoNombre(txtCNombre.getText().trim());
         e.setContactoMovil(txtCMovil.getText().trim());
         e.setContactoMail(txtCEmail.getText().trim());
         e.setContactoDNI(txtCNif.getText().trim());
 
-        boolean ok;
+        // --- 3. GUARDADO EN BASE DE DATOS ---
+        boolean ok = false;
         if (empresaEditar == null) {
             ok = empService.crear(e, null);
             if (ok) {
@@ -280,19 +337,32 @@ public class EmpresaFormController implements Initializable {
         } else {
             ok = empService.actualizar(e);
             if (ok) {
-                List<Persona> actualesBD =
-                        DatabaseManager.obtenerPersonasDeEmpresa(e.getNifCif());
-                List<String> nifsActuales =
-                        actualesBD.stream().map(Persona::getNif).toList();
+                List<Persona> actualesBD = DatabaseManager.obtenerPersonasDeEmpresa(e.getNifCif());
+                List<String> nifsActuales = actualesBD.stream().map(Persona::getNif).toList();
+                List<String> nifsNuevos = personasSeleccionadas.stream().map(Persona::getNif).toList();
+
+                // 1. Vincular las nuevas
                 for (Persona p : personasSeleccionadas) {
                     if (!nifsActuales.contains(p.getNif())) {
-                        DatabaseManager.vincularEmpresaPersona(e.getNifCif(), p.getNif());
+                        empService.vincularPersona(e.getNifCif(), p.getNif());
+                    }
+                }
+                // 2. Desvincular las que el usuario ha borrado
+                for (Persona pBD : actualesBD) {
+                    if (!nifsNuevos.contains(pBD.getNif())) {
+                        empService.desvincularPersona(e.getNifCif(), pBD.getNif());
                     }
                 }
             }
         }
 
+        // --- 4. ACCIONES POST-GUARDADO ---
         if (ok) {
+            // Si todo fue bien en BD y se requiere mover la carpeta, lo hacemos ahora:
+            if (requiereMoverCarpeta && rutaAntigua != null && rutaNueva != null) {
+                moverCarpetaFisica(rutaAntigua, rutaNueva);
+            }
+
             if (callback != null) callback.accept(e);
             cerrar();
         } else {
@@ -325,7 +395,28 @@ public class EmpresaFormController implements Initializable {
             return false;
         }
 
-        if (txtDenominacion.getText().isBlank())  { mostrarReq("Denominación Social"); return false; }
+        String denominacionActual = txtDenominacion.getText().trim();
+        if (denominacionActual.isBlank())  {
+            mostrarReq("Denominación Social");
+            return false;
+        }
+
+        // --- Denominación Social Única ---
+        List<Empresa> todasLasEmpresas = empService.obtenerTodas();
+        if (todasLasEmpresas != null) {
+            for (Empresa emp : todasLasEmpresas) {
+                // Comparamos ignorando mayúsculas/minúsculas para mayor seguridad
+                if (emp.getDenominacionSocial().equalsIgnoreCase(denominacionActual)) {
+                    // Si estamos creando (empresaEditar == null) ya es un duplicado.
+                    // Si estamos editando, es duplicado SOLO si el NIF es de OTRA empresa distinta.
+                    if (empresaEditar == null || !emp.getNifCif().equals(empresaEditar.getNifCif())) {
+                        mostrarAlerta("Ya existe otra empresa registrada como '" + denominacionActual + "'.\n" +
+                                "Para evitar conflictos de carpetas, la denominación social debe ser única.");
+                        return false;
+                    }
+                }
+            }
+        }
         if (comboFormaSocial.getValue() == null)  { mostrarReq("Forma Social");        return false; }
 
         // Abreviatura: obligatoria, no se auto-genera si está vacía

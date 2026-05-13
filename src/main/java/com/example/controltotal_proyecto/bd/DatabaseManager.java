@@ -53,8 +53,8 @@ public class DatabaseManager {
             ps.setString(12, e.getServicio());
             ps.setString(13, e.getDelegacion());
             ps.setString(14, e.getFechaAlta());
-            ps.setString(15, e.getNifCif());
-            ps.setString(16, e.getContactoDNI());
+            ps.setString(15, e.getContactoDNI());
+            ps.setString(16, e.getNifCif());
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
             System.err.println("❌ Error al actualizar empresa: " + ex.getMessage());
