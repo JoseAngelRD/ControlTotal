@@ -8,17 +8,17 @@ import com.example.controltotal_proyecto.util.BadgeFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -29,120 +29,36 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controlador de la vista "Personas".
+ * Controlador de la vista "Personas" — diseño de tarjetas al estilo Empresas.
  */
 public class PersonasController implements Initializable,
         MainController.RefreshableController, MainController.ChildController {
 
-    // ─── Tabla ────────────────────────────────────────────────────────────────
-    @FXML private TableView<Persona>          tablaPersonas;
-    @FXML private TableColumn<Persona,String> colNombre;
-    @FXML private TableColumn<Persona,String> colApellidos;
-    @FXML private TableColumn<Persona,String> colNif;
-    @FXML private TableColumn<Persona,String> colMovil;
-    @FXML private TableColumn<Persona,String> colEmail;
-    @FXML private TableColumn<Persona,Void>   colEmpresas;
-    @FXML private TableColumn<Persona,String> colEstado;
-    @FXML private TableColumn<Persona,Void>   colAcciones;
-
-    // ─── Filtros ──────────────────────────────────────────────────────────────
+    // ─── FXML ─────────────────────────────────────────────────────────────────
     @FXML private TextField    searchField;
     @FXML private ToggleButton chipTodos;
     @FXML private ToggleButton chipActivo;
     @FXML private ToggleButton chipInactivo;
 
+    @FXML private VBox listContainer;
     @FXML private VBox lblEmpty;
 
-    // ─── Datos ───────────────────────────────────────────────────────────────
-    private final PersonaService            service    = new PersonaService();
-    private final ObservableList<Persona>   masterList = FXCollections.observableArrayList();
-    private       FilteredList<Persona>     filtered;
-    private       MainController            mainController;
+    // ─── Datos ────────────────────────────────────────────────────────────────
+    private final PersonaService          service    = new PersonaService();
+    private final ObservableList<Persona> masterList = FXCollections.observableArrayList();
+    private       FilteredList<Persona>   filtered;
+    private       MainController          mainController;
 
     // ─── Init ─────────────────────────────────────────────────────────────────
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        configurarColumnas();
         configurarFiltros();
         cargarDatos();
     }
 
     @Override public void onViewActivated()                      { cargarDatos(); }
     @Override public void setMainController(MainController main) { this.mainController = main; }
-
-    // ─── Columnas ─────────────────────────────────────────────────────────────
-
-    private void configurarColumnas() {
-        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        colApellidos.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
-        colNif.setCellValueFactory(new PropertyValueFactory<>("nif"));
-        colMovil.setCellValueFactory(new PropertyValueFactory<>("contactoMovil"));
-        colEmail.setCellValueFactory(new PropertyValueFactory<>("contactoMail"));
-
-        // Empresas relacionadas — lista de tags (CORREGIDO PARA USAR OBJETOS EMPRESA)
-        colEmpresas.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(Void v, boolean empty) {
-                super.updateItem(v, empty);
-                if (empty) { setGraphic(null); return; }
-                Persona p = getTableView().getItems().get(getIndex());
-                FlowPane flow = new FlowPane(4, 4);
-
-                List<Empresa> empresasVinculadas = DatabaseManager.obtenerEmpresasDePersona(p.getNif());
-
-                if (empresasVinculadas.isEmpty()) {
-                    Label lbl = new Label("Sin empresas");
-                    lbl.getStyleClass().add("text-muted");
-                    flow.getChildren().add(lbl);
-                } else {
-                    empresasVinculadas.forEach(e -> {
-                        if (e != null && e.getAbreviatura() != null) {
-                            flow.getChildren().add(BadgeFactory.empresaTag(e.getAbreviatura()));
-                        }
-                    });
-                }
-                setGraphic(flow);
-            }
-        });
-
-        // Estado — badge
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
-        colEstado.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String v, boolean empty) {
-                super.updateItem(v, empty);
-                if (empty || v == null) { setGraphic(null); return; }
-                setGraphic(BadgeFactory.estadoBadge(v)); setText(null);
-            }
-        });
-
-        // Acciones
-        colAcciones.setCellFactory(col -> new TableCell<>() {
-            private final Button btnEditar  = crearBtn("Editar", "btn-icon-edit");
-            private final Button btnCarpeta = crearBtn("Carpeta", "btn-icon-folder");
-            private final HBox   box        = new HBox(6, btnEditar, btnCarpeta);
-            {
-                box.setAlignment(Pos.CENTER_LEFT);
-                btnEditar.setOnAction(e -> abrirFormulario(getTableView().getItems().get(getIndex())));
-                btnCarpeta.setOnAction(e -> {
-                    Persona p = getTableView().getItems().get(getIndex());
-                    abrirCarpeta(p.getRutaDocumental());
-                });
-            }
-            @Override protected void updateItem(Void v, boolean empty) {
-                super.updateItem(v, empty);
-                setGraphic(empty ? null : box);
-            }
-        });
-
-        tablaPersonas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-    }
-
-    private Button crearBtn(String tooltip, String styleClass) {
-        Button btn = new Button();
-        btn.setTooltip(new Tooltip(tooltip));
-        btn.getStyleClass().addAll("btn-icon", styleClass);
-        return btn;
-    }
 
     // ─── Filtros ──────────────────────────────────────────────────────────────
 
@@ -152,21 +68,21 @@ public class PersonasController implements Initializable,
         chipActivo.setToggleGroup(tg);
         chipInactivo.setToggleGroup(tg);
         chipTodos.setSelected(true);
-        tg.selectedToggleProperty().addListener((obs, o, n) -> aplicarFiltros());
-        searchField.textProperty().addListener((obs, o, n) -> aplicarFiltros());
+        tg.selectedToggleProperty().addListener((obs, o, n) -> renderizarFiltrado());
+        searchField.textProperty().addListener((obs, o, n) -> renderizarFiltrado());
     }
+
+    // ─── Carga y renderizado ──────────────────────────────────────────────────
 
     private void cargarDatos() {
         masterList.setAll(service.obtenerTodas());
         filtered = new FilteredList<>(masterList, p -> true);
-        SortedList<Persona> sorted = new SortedList<>(filtered);
-        sorted.comparatorProperty().bind(tablaPersonas.comparatorProperty());
-        tablaPersonas.setItems(sorted);
-        actualizarVacio();
+        renderizarFiltrado();
     }
 
-    private void aplicarFiltros() {
+    private void renderizarFiltrado() {
         if (filtered == null) return;
+
         filtered.setPredicate(p -> {
             String q = searchField.getText().toLowerCase();
             boolean mQ = q.isBlank() ||
@@ -176,19 +92,114 @@ public class PersonasController implements Initializable,
 
             ToggleButton sel = (ToggleButton) chipTodos.getToggleGroup().getSelectedToggle();
             boolean mE = sel == null || sel == chipTodos ||
-                    (sel == chipActivo && p.isActivo()) ||
+                    (sel == chipActivo   && p.isActivo()) ||
                     (sel == chipInactivo && !p.isActivo());
 
             return mQ && mE;
         });
-        actualizarVacio();
-    }
 
-    private void actualizarVacio() {
-        boolean vacio = tablaPersonas.getItems().isEmpty();
-        tablaPersonas.setVisible(!vacio);
+        listContainer.getChildren().clear();
+        filtered.forEach(p -> listContainer.getChildren().add(crearTarjeta(p)));
+
+        boolean vacio = filtered.isEmpty();
+        listContainer.setVisible(!vacio);
         lblEmpty.setVisible(vacio);
     }
+
+    // ─── Tarjeta ──────────────────────────────────────────────────────────────
+
+    private HBox crearTarjeta(Persona p) {
+
+        // ── 2. Columnas de datos: etiqueta encima, valor debajo ───────────────
+        VBox colNombre    = campoVertical("Nombre",    p.getNombre(),        false, false);
+        VBox colApellidos = campoVertical("Apellidos", p.getApellidos(),     false, false);
+        VBox colNif       = campoVertical("NIF",       p.getNif(),           false, true);
+        VBox colMovil     = campoVertical("Móvil",     p.getContactoMovil(), false, false);
+        VBox colEmail     = campoVertical("Email",     p.getContactoMail(),  false, false);
+
+        HBox campos = new HBox(24, colNombre, colApellidos, colNif, colMovil, colEmail);
+        campos.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(campos, Priority.ALWAYS);
+
+        // ── 3. Empresas relacionadas ──────────────────────────────────────────
+        if(p.getNif() != null) {
+            List<Empresa> empresas = DatabaseManager.obtenerEmpresasDePersona(p.getNif());
+
+            Label lblEmpresasTitle = new Label("Empresas");
+            lblEmpresasTitle.getStyleClass().add("card-field-title");
+
+            FlowPane flowEmpresas = new FlowPane(4, 4);
+            flowEmpresas.setAlignment(Pos.CENTER_LEFT);
+            if (empresas.isEmpty()) {
+                Label sinEmp = new Label("Sin empresas");
+                sinEmp.getStyleClass().add("text-muted");
+                flowEmpresas.getChildren().add(sinEmp);
+            } else {
+                empresas.forEach(e -> {
+                    if (e != null && e.getAbreviatura() != null) {
+                        flowEmpresas.getChildren().add(BadgeFactory.empresaTag(e.getAbreviatura()));
+                    }
+                });
+            }
+
+            VBox empresasBox = new VBox(4, lblEmpresasTitle, flowEmpresas);
+            empresasBox.setAlignment(Pos.TOP_LEFT);
+            empresasBox.setMinWidth(160);
+            empresasBox.setMaxWidth(220);
+
+            // ── 4. Badge de estado + botones, alineados arriba a la derecha ───────
+            String estadoTexto = p.isActivo() ? "Activo" : "Pasivo";
+            Label badgeEstado = BadgeFactory.estadoBadge(estadoTexto);
+
+            Button btnEditar = new Button("✏ Modificar");
+            btnEditar.getStyleClass().add("btn-card-edit");
+            btnEditar.setOnAction(e -> abrirFormulario(p));
+
+            Button btnCarpeta = new Button("📁 Carpeta");
+            btnCarpeta.getStyleClass().add("btn-card-folder");
+            btnCarpeta.setOnAction(e -> abrirCarpeta(p.getRutaDocumental()));
+
+            HBox botonesBox = new HBox(8, btnEditar, btnCarpeta);
+            botonesBox.setAlignment(Pos.CENTER_RIGHT);
+
+            // Badge arriba a la derecha, botones debajo también a la derecha
+            VBox accionesBox = new VBox(8, badgeEstado, botonesBox);
+            accionesBox.setAlignment(Pos.TOP_RIGHT);
+            accionesBox.setMinWidth(220);
+
+            // ── 5. Tarjeta completa ───────────────────────────────────────────────
+            HBox card = new HBox(16, campos, empresasBox, accionesBox);
+            card.getStyleClass().add("empresa-card");
+            card.setAlignment(Pos.CENTER_LEFT);
+            card.setPadding(new Insets(14, 20, 14, 16));
+
+            return card;
+        } else
+            System.out.println("SALIO NULL MANIGA");
+        return null;
+    }
+
+    /**
+     * Campo vertical: etiqueta pequeña arriba (card-field-title) + valor legible abajo.
+     * bold=true → card-field-value-bold; mono=true → card-field-value-mono;
+     * en caso contrario → card-field-value (color claro #cbd5e1).
+     */
+    private VBox campoVertical(String etiqueta, String valor, boolean bold, boolean mono) {
+        Label lblTitle = new Label(etiqueta);
+        lblTitle.getStyleClass().add("card-field-title");
+
+        String texto = (valor != null && !valor.isBlank()) ? valor : "—";
+        Label lblValue = new Label(texto);
+        if (bold)       lblValue.getStyleClass().add("card-field-value-bold");
+        else if (mono)  lblValue.getStyleClass().add("card-field-value-mono");
+        else            lblValue.getStyleClass().add("card-field-value");
+
+        VBox box = new VBox(2, lblTitle, lblValue);
+        box.setAlignment(Pos.TOP_LEFT);
+        return box;
+    }
+
+    /** Iniciales: primera letra de nombre + primera de apellidos. */
 
     private String safe(String s) { return s != null ? s.toLowerCase() : ""; }
 
