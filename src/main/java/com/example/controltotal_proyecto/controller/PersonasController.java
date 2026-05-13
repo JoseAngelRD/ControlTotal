@@ -122,61 +122,57 @@ public class PersonasController implements Initializable,
         HBox.setHgrow(campos, Priority.ALWAYS);
 
         // ── 3. Empresas relacionadas ──────────────────────────────────────────
-        if(p.getNif() != null) {
-            List<Empresa> empresas = DatabaseManager.obtenerEmpresasDePersona(p.getNif());
+        List<Empresa> empresas = DatabaseManager.obtenerEmpresasDePersona(p.getNif());
 
-            Label lblEmpresasTitle = new Label("Empresas");
-            lblEmpresasTitle.getStyleClass().add("card-field-title");
+        Label lblEmpresasTitle = new Label("Empresas");
+        lblEmpresasTitle.getStyleClass().add("card-field-title");
 
-            FlowPane flowEmpresas = new FlowPane(4, 4);
-            flowEmpresas.setAlignment(Pos.CENTER_LEFT);
-            if (empresas.isEmpty()) {
-                Label sinEmp = new Label("Sin empresas");
-                sinEmp.getStyleClass().add("text-muted");
-                flowEmpresas.getChildren().add(sinEmp);
-            } else {
-                empresas.forEach(e -> {
-                    if (e != null && e.getAbreviatura() != null) {
-                        flowEmpresas.getChildren().add(BadgeFactory.empresaTag(e.getAbreviatura()));
-                    }
-                });
-            }
+        FlowPane flowEmpresas = new FlowPane(4, 4);
+        flowEmpresas.setAlignment(Pos.CENTER_LEFT);
+        if (empresas.isEmpty()) {
+            Label sinEmp = new Label("Sin empresas");
+            sinEmp.getStyleClass().add("text-muted");
+            flowEmpresas.getChildren().add(sinEmp);
+        } else {
+            empresas.forEach(e -> {
+                if (e != null && e.getAbreviatura() != null) {
+                    flowEmpresas.getChildren().add(BadgeFactory.empresaTag(e.getAbreviatura()));
+                }
+            });
+        }
 
-            VBox empresasBox = new VBox(4, lblEmpresasTitle, flowEmpresas);
-            empresasBox.setAlignment(Pos.TOP_LEFT);
-            empresasBox.setMinWidth(160);
-            empresasBox.setMaxWidth(220);
+        VBox empresasBox = new VBox(4, lblEmpresasTitle, flowEmpresas);
+        empresasBox.setAlignment(Pos.TOP_LEFT);
+        empresasBox.setMinWidth(160);
+        empresasBox.setMaxWidth(220);
 
-            // ── 4. Badge de estado + botones, alineados arriba a la derecha ───────
-            String estadoTexto = p.isActivo() ? "Activo" : "Pasivo";
-            Label badgeEstado = BadgeFactory.estadoBadge(estadoTexto);
+        // ── 4. Badge de estado + botones, alineados arriba a la derecha ───────
+        String estadoTexto = p.isActivo() ? "Activo" : "Pasivo";
+        Label badgeEstado = BadgeFactory.estadoBadge(estadoTexto);
 
-            Button btnEditar = new Button("✏ Modificar");
-            btnEditar.getStyleClass().add("btn-card-edit");
-            btnEditar.setOnAction(e -> abrirFormulario(p));
+        Button btnEditar = new Button("✏ Modificar");
+        btnEditar.getStyleClass().add("btn-card-edit");
+        btnEditar.setOnAction(e -> abrirFormulario(p));
 
-            Button btnCarpeta = new Button("📁 Carpeta");
-            btnCarpeta.getStyleClass().add("btn-card-folder");
-            btnCarpeta.setOnAction(e -> abrirCarpeta(p.getRutaDocumental()));
+        Button btnCarpeta = new Button("📁 Carpeta");
+        btnCarpeta.getStyleClass().add("btn-card-folder");
+        btnCarpeta.setOnAction(e -> abrirCarpeta(p.getRutaDocumental()));
 
-            HBox botonesBox = new HBox(8, btnEditar, btnCarpeta);
-            botonesBox.setAlignment(Pos.CENTER_RIGHT);
+        HBox botonesBox = new HBox(8, btnEditar, btnCarpeta);
+        botonesBox.setAlignment(Pos.CENTER_RIGHT);
 
-            // Badge arriba a la derecha, botones debajo también a la derecha
-            VBox accionesBox = new VBox(8, badgeEstado, botonesBox);
-            accionesBox.setAlignment(Pos.TOP_RIGHT);
-            accionesBox.setMinWidth(220);
+        // Badge arriba a la derecha, botones debajo también a la derecha
+        VBox accionesBox = new VBox(8, badgeEstado, botonesBox);
+        accionesBox.setAlignment(Pos.TOP_RIGHT);
+        accionesBox.setMinWidth(220);
 
-            // ── 5. Tarjeta completa ───────────────────────────────────────────────
-            HBox card = new HBox(16, campos, empresasBox, accionesBox);
-            card.getStyleClass().add("empresa-card");
-            card.setAlignment(Pos.CENTER_LEFT);
-            card.setPadding(new Insets(14, 20, 14, 16));
+        // ── 5. Tarjeta completa ───────────────────────────────────────────────
+        HBox card = new HBox(16, campos, empresasBox, accionesBox);
+        card.getStyleClass().add("empresa-card");
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPadding(new Insets(14, 20, 14, 16));
 
-            return card;
-        } else
-            System.out.println("SALIO NULL MANIGA");
-        return null;
+        return card;
     }
 
     /**
