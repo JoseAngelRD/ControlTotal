@@ -24,10 +24,10 @@ public class Main extends Application {
             getClass().getResource("/com/example/controltotal_proyecto/fxml/MainLayout.fxml")
         );
 
-        // ── Tamaño inicial: 75 % de la pantalla disponible ───────────────────
+        // ── Tamaño inicial: 80 % de la pantalla disponible ───────────────────
         Rectangle2D screen = Screen.getPrimary().getVisualBounds();
-        double initW = Math.round(screen.getWidth()  * 0.75);
-        double initH = Math.round(screen.getHeight() * 0.75);
+        double initW = Math.round(screen.getWidth()  * 0.80);
+        double initH = Math.round(screen.getHeight() * 0.80);
 
         Scene scene = new Scene(loader.load(), initW, initH);
         scene.getStylesheets().add(
