@@ -79,4 +79,6 @@
         </StackPane>
     </VBox>
 
+    <VBox fx:id="vistaFormulario" visible="false" maxWidth="1.7976931348623157E308" maxHeight="1.7976931348623157E308"/>
+
 </StackPane>

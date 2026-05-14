@@ -13,15 +13,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,9 +28,15 @@ import java.util.ResourceBundle;
 
 /**
  * Controlador de la vista "Personas" — diseño de tarjetas al estilo Empresas.
+ * El formulario de alta/edición se abre en la misma ventana (inline),
+ * igual que en EmpresasController.
  */
 public class PersonasController implements Initializable,
         MainController.RefreshableController, MainController.ChildController {
+
+    // ─── Vistas (dos capas que se alternan, igual que en EmpresasController) ──
+    @FXML private VBox vistaLista;
+    @FXML private VBox vistaFormulario;
 
     // ─── FXML ─────────────────────────────────────────────────────────────────
     @FXML private TextField    searchField;
@@ -53,6 +57,12 @@ public class PersonasController implements Initializable,
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Igual que EmpresasController: ambas vistas ocupan todo el espacio disponible
+        vistaLista.setPrefWidth(Double.MAX_VALUE);
+        vistaLista.setPrefHeight(Double.MAX_VALUE);
+        vistaFormulario.setPrefWidth(Double.MAX_VALUE);
+        vistaFormulario.setPrefHeight(Double.MAX_VALUE);
+
         configurarFiltros();
         cargarDatos();
     }
@@ -110,7 +120,7 @@ public class PersonasController implements Initializable,
 
     private HBox crearTarjeta(Persona p) {
 
-        // ── 2. Columnas de datos: etiqueta encima, valor debajo ───────────────
+        // ── Columnas de datos: etiqueta encima, valor debajo ──────────────────
         VBox colNombre    = campoVertical("Nombre",    p.getNombre(),        false, false);
         VBox colApellidos = campoVertical("Apellidos", p.getApellidos(),     false, false);
         VBox colNif       = campoVertical("NIF",       p.getNif(),           false, true);
@@ -121,7 +131,7 @@ public class PersonasController implements Initializable,
         campos.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(campos, Priority.ALWAYS);
 
-        // ── 3. Empresas relacionadas ──────────────────────────────────────────
+        // ── Empresas relacionadas ─────────────────────────────────────────────
         List<Empresa> empresas = DatabaseManager.obtenerEmpresasDePersona(p.getNif());
 
         Label lblEmpresasTitle = new Label("Empresas");
@@ -146,7 +156,7 @@ public class PersonasController implements Initializable,
         empresasBox.setMinWidth(160);
         empresasBox.setMaxWidth(220);
 
-        // ── 4. Badge de estado + botones, alineados arriba a la derecha ───────
+        // ── Badge de estado + botones, alineados arriba a la derecha ──────────
         String estadoTexto = p.isActivo() ? "Activo" : "Pasivo";
         Label badgeEstado = BadgeFactory.estadoBadge(estadoTexto);
 
@@ -161,12 +171,11 @@ public class PersonasController implements Initializable,
         HBox botonesBox = new HBox(8, btnEditar, btnCarpeta);
         botonesBox.setAlignment(Pos.CENTER_RIGHT);
 
-        // Badge arriba a la derecha, botones debajo también a la derecha
         VBox accionesBox = new VBox(8, badgeEstado, botonesBox);
         accionesBox.setAlignment(Pos.TOP_RIGHT);
         accionesBox.setMinWidth(220);
 
-        // ── 5. Tarjeta completa ───────────────────────────────────────────────
+        // ── Tarjeta completa ──────────────────────────────────────────────────
         HBox card = new HBox(16, campos, empresasBox, accionesBox);
         card.getStyleClass().add("empresa-card");
         card.setAlignment(Pos.CENTER_LEFT);
@@ -195,47 +204,51 @@ public class PersonasController implements Initializable,
         return box;
     }
 
-    /** Iniciales: primera letra de nombre + primera de apellidos. */
-    private String iniciales(Persona p) {
-        StringBuilder sb = new StringBuilder();
-        if (p.getNombre()    != null && !p.getNombre().isBlank())
-            sb.append(Character.toUpperCase(p.getNombre().charAt(0)));
-        if (p.getApellidos() != null && !p.getApellidos().isBlank())
-            sb.append(Character.toUpperCase(p.getApellidos().charAt(0)));
-        return sb.toString();
-    }
-
     private String safe(String s) { return s != null ? s.toLowerCase() : ""; }
 
     // ─── Acciones ─────────────────────────────────────────────────────────────
 
     @FXML private void onNuevaPersona() { abrirFormulario(null); }
 
+    /**
+     * Abre el formulario de alta/edición en la misma ventana (inline),
+     * sustituyendo vistaLista por vistaFormulario, igual que en EmpresasController.
+     */
     private void abrirFormulario(Persona personaEditar) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/example/controltotal_proyecto/fxml/dialogs/PersonaFormDialog.fxml")
+                    getClass().getResource(
+                            "/com/example/controltotal_proyecto/fxml/dialogs/PersonaFormDialog.fxml")
             );
-            Parent root = loader.load();
+            Node formRoot = loader.load();
             PersonaFormController ctrl = loader.getController();
-            ctrl.init(personaEditar, result -> {
+
+            // Acción de cierre: volver a la lista y refrescar datos
+            Runnable volver = () -> {
+                vistaFormulario.setVisible(false);
+                vistaFormulario.getChildren().clear();
+                vistaLista.setVisible(true);
                 cargarDatos();
                 if (mainController != null) mainController.refreshStats();
-            });
+            };
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setTitle(personaEditar == null ? "Nueva Persona" : "Editar Persona");
-            dialog.setScene(new Scene(root));
-            dialog.getScene().getStylesheets().add(
-                    getClass().getResource("/com/example/controltotal_proyecto/css/styles.css").toExternalForm()
-            );
-            dialog.setMinWidth(520);
-            dialog.show();
+            ctrl.setCloseAction(volver);
+            ctrl.init(personaEditar, result -> volver.run());
+
+            // Hacer que el formulario ocupe todo el espacio disponible
+            if (formRoot instanceof Region region) {
+                region.prefWidthProperty().bind(vistaFormulario.widthProperty());
+                region.prefHeightProperty().bind(vistaFormulario.heightProperty());
+            }
+
+            VBox.setVgrow(formRoot, Priority.ALWAYS);
+            vistaFormulario.getChildren().setAll(formRoot);
+            vistaLista.setVisible(false);
+            vistaFormulario.setVisible(true);
 
         } catch (IOException ex) {
             ex.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "No se pudo abrir el formulario.").show();
+            new Alert(Alert.AlertType.ERROR, "No se pudo cargar el formulario de persona.").show();
         }
     }
 
