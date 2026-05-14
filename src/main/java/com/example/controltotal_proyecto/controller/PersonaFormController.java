@@ -183,7 +183,7 @@ public class PersonaFormController implements Initializable {
             cerrar();
         } else {
             mostrarAlerta(personaEditar == null
-                    ? "No se pudo crear la persona. ¿Existe ya ese NIF?"
+                    ? "El NIF que has introducido ya existe."
                     : "No se pudo actualizar la persona.");
         }
     }
