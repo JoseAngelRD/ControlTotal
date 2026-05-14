@@ -34,7 +34,11 @@ public class PersonaService {
 
     public boolean crear(Persona persona) {
         // Generar ruta documental automáticamente
-        String rutaBase = Directorios.crearCarpetaPersona(persona.getNombre(), persona.isActivo());
+
+        String nombreApellidos = persona.getNombre();
+        nombreApellidos += " " + persona.getApellidos();
+
+        String rutaBase = Directorios.crearCarpetaPersona(nombreApellidos, persona.isActivo());
         if (rutaBase != null) {
             persona.setRutaDocumental(rutaBase);
             persona.setRutaCertElectronico(rutaBase + "\\Certificado Electrónico");
