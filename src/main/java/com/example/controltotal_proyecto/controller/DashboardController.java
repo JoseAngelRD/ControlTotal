@@ -35,8 +35,6 @@ public class DashboardController implements Initializable,
     @FXML private PieChart chartAgente;
     @FXML private VBox     vboxAgenteLegend;
 
-    @FXML private TableView<Empresa> tableRecientes;
-
     private MainController mainController;
 
     private static final List<String> PIE_COLORS = List.of(
@@ -46,44 +44,12 @@ public class DashboardController implements Initializable,
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        inicializarTabla();
         refrescar();
     }
 
     @Override public void onViewActivated()                       { refrescar(); }
     @Override public void setMainController(MainController main)  { this.mainController = main; }
 
-    @SuppressWarnings("unchecked")
-    private void inicializarTabla() {
-        tableRecientes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        TableColumn<Empresa, String> colAbr = col("Abrvi",       "abreviatura",        60);
-        TableColumn<Empresa, String> colNom = col("Nombre",      "denominacionSocial", 140);
-        TableColumn<Empresa, String> colFor = col("Forma",       "formaSocial",        80); // Corregido
-        TableColumn<Empresa, String> colFec = col("Fecha Alta",  "fechaAlta",          100);
-        TableColumn<Empresa, String> colSrv = col("Servicio",    "servicio",            90);
-        TableColumn<Empresa, String> colAge = col("Agente",      "agenteContable",     110); // Corregido
-        TableColumn<Empresa, String> colDel = col("Delegación",  "delegacion",         110);
-
-        TableColumn<Empresa, Boolean> colEst = new TableColumn<>("Estado");
-        colEst.setCellValueFactory(new PropertyValueFactory<>("activo"));
-        colEst.setMinWidth(80);
-        colEst.setCellFactory(tc -> new TableCell<>() {
-            @Override protected void updateItem(Boolean activo, boolean empty) {
-                super.updateItem(activo, empty);
-                if (empty || activo == null) { setGraphic(null); return; }
-                String texto = activo ? "Activo" : "Pasivo";
-                Label badge = new Label(texto);
-                badge.getStyleClass().addAll("badge-estado",
-                        activo ? "badge-activo" : "badge-pasivo");
-                setGraphic(badge);
-                setText(null);
-            }
-        });
-
-        tableRecientes.getColumns().setAll(colAbr, colNom, colFor, colFec, colSrv, colAge, colDel, colEst);
-        tableRecientes.setPlaceholder(new Label("Sin empresas registradas"));
-    }
 
     private TableColumn<Empresa, String> col(String titulo, String propiedad, double minW) {
         TableColumn<Empresa, String> tc = new TableColumn<>(titulo);
@@ -127,13 +93,6 @@ public class DashboardController implements Initializable,
                 d -> (int) finalEmps.stream().filter(e -> d.equalsIgnoreCase(e.getDelegacion())).count(), maxDel);
 
         renderPieAgente(emps);
-
-        // Corregido: La ordenación de objetos ahora es explícita para evitar crasheos
-        List<Empresa> recientes = emps.stream()
-                .sorted(Comparator.comparing(Empresa::getDenominacionSocial).reversed())
-                .limit(8)
-                .collect(Collectors.toList());
-        tableRecientes.setItems(FXCollections.observableArrayList(recientes));
     }
 
     private void renderPieAgente(List<Empresa> emps) {

@@ -104,40 +104,21 @@
                 </VBox>
             </GridPane>
 
-            <!-- ── PIE CHART AGENTE + TABLA RECIENTES ───────────────────── -->
-            <GridPane hgap="16" vgap="16">
-                <columnConstraints>
-                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
-                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
-                </columnConstraints>
-
-                <!-- Empresas por Agente Contable -->
-                <VBox styleClass="dash-card" spacing="12" GridPane.columnIndex="0">
-                    <padding><Insets top="22" right="24" bottom="22" left="24"/></padding>
-                    <Label text="Empresas por Agente Contable" styleClass="dash-card-title,dash-card-title-lg"/>
-                    <HBox spacing="16" alignment="CENTER_LEFT">
-                        <PieChart fx:id="chartAgente"
-                                  legendVisible="false"
-                                  labelsVisible="true"
-                                  labelLineLength="10"
-                                  prefWidth="350"
-                                  prefHeight="280"
-                                  animated="false"
-                                  HBox.hgrow="ALWAYS"/>
-                        <VBox fx:id="vboxAgenteLegend" spacing="10" alignment="CENTER_LEFT"/>
-                    </HBox>
-                </VBox>
-
-                <!-- Últimas Empresas Buscadas -->
-                <VBox styleClass="dash-card" spacing="12" GridPane.columnIndex="1">
-                    <padding><Insets top="22" right="24" bottom="22" left="24"/></padding>
-                    <Label text="Últimas Empresas Buscadas" styleClass="dash-card-title,dash-card-title-lg"/>
-                    <TableView fx:id="tableRecientes" VBox.vgrow="ALWAYS"
-                               styleClass="dash-table"
-                               prefHeight="220"
-                               fixedCellSize="36"/>
-                </VBox>
-            </GridPane>
+            <!-- ── PIE CHART AGENTE ───────────────────── -->
+            <VBox styleClass="dash-card" spacing="12">
+                <padding><Insets top="22" right="24" bottom="22" left="24"/></padding>
+                <Label text="Empresas por Agente Contable" styleClass="dash-card-title,dash-card-title-lg"/>
+                <HBox spacing="16" alignment="CENTER_LEFT">
+                    <PieChart fx:id="chartAgente"
+                              legendVisible="false"
+                              labelsVisible="true"
+                              labelLineLength="10"
+                              prefHeight="340"
+                              animated="false"
+                              HBox.hgrow="ALWAYS"/>
+                    <VBox fx:id="vboxAgenteLegend" spacing="10" alignment="CENTER_LEFT"/>
+                </HBox>
+            </VBox>
 
         </VBox>
     </ScrollPane>
