@@ -10,9 +10,9 @@ import java.sql.SQLException;
  */
 public class ConexionBD {
 
-    private static final String URL      = "jdbc:mysql://127.0.0.1:3306/control_total_bd";     //CAMBIAR ESTO CON IP SERVER
-    private static final String USER     = "root";                                             //Nombre y Contraseña new acc
-    private static final String PASSWORD = "root";
+    private static final String URL      = "jdbc:mysql://192.168.0.111:3306/control_total_bd";     //CAMBIAR ESTO CON IP SERVER
+    private static final String USER     = "carlos_control_total";                                             //Nombre y Contraseña new acc
+    private static final String PASSWORD = "SATURNO20";
 
     public static Connection conectar() {
         try {
