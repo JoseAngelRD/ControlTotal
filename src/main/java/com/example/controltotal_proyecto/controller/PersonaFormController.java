@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
@@ -233,12 +234,18 @@ public class PersonaFormController implements Initializable {
 
         String nombre = txtNombre.getText();
         String apellidos = txtApellidos.getText();
+        String nif = txtNif.getText();
 
         List<Persona> todasLasPersonas = perService.obtenerTodas();
+
+        // 1. Si la persona que se introduce tiene el mismo nif que otra, se avisa.
+        // 2. Si la persona que se introduce tiene nom. y apellidos idénticos a otra (distinto nif) avisa de esto.
         if (todasLasPersonas != null) {
             for (Persona per : todasLasPersonas) {
                 // Comparamos ignorando mayúsculas/minúsculas para mayor seguridad
-                if (per.getNombre().equalsIgnoreCase(nombre) && per.getApellidos().equalsIgnoreCase(apellidos)) {
+                if (per.getNombre().equalsIgnoreCase(nombre)
+                        && per.getApellidos().equalsIgnoreCase(apellidos)
+                        && !per.getNif().equalsIgnoreCase(nif)) {
                     mostrarAlerta("Ya existe una persona con nombre y apellidos idénticos. Por motivos" +
                                            " de cohesión, por ahora es imposible dar de alta a esta persona.");
                     return false;
