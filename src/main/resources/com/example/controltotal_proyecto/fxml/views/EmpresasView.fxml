@@ -65,9 +65,11 @@
             <ToggleButton fx:id="chipActivo" text="Activo" styleClass="filter-chip"/>
             <ToggleButton fx:id="chipPasivo" text="Pasivo" styleClass="filter-chip"/>
             <Label text="Servicio:" styleClass="filter-label"/>
-            <ComboBox fx:id="comboServicio"   styleClass="filter-select" prefWidth="130"/>
-            <ComboBox fx:id="comboDelegacion" styleClass="filter-select" prefWidth="180"/>
-            <ComboBox fx:id="comboAgente"     styleClass="filter-select" prefWidth="180"/>
+            <ComboBox fx:id="comboServicio"   styleClass="filter-select" prefWidth="140" promptText="Todos"/>
+            <Label text="Delegación:" styleClass="filter-label"/>
+            <ComboBox fx:id="comboDelegacion" styleClass="filter-select" prefWidth="170" promptText="Todas"/>
+            <Label text="Agente:" styleClass="filter-label"/>
+            <ComboBox fx:id="comboAgente"     styleClass="filter-select" prefWidth="170" promptText="Todos"/>
         </HBox>
 
         <!-- Área de tarjetas -->

@@ -53,13 +53,13 @@
     <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="8">
         <padding><Insets top="4" right="28" bottom="10" left="28"/></padding>
         <Label text="Servicio:" styleClass="filter-label"/>
-        <ComboBox fx:id="comboServicio"    styleClass="filter-select" prefWidth="130"/>
+        <ComboBox fx:id="comboServicio"    styleClass="filter-select" prefWidth="140" promptText="Todos"/>
         <Label text="Delegación:" styleClass="filter-label"/>
-        <ComboBox fx:id="comboDelegacion"  styleClass="filter-select" prefWidth="160"/>
+        <ComboBox fx:id="comboDelegacion"  styleClass="filter-select" prefWidth="165" promptText="Todas"/>
         <Label text="Estado:" styleClass="filter-label"/>
-        <ComboBox fx:id="comboEstado"      styleClass="filter-select" prefWidth="150"/>
+        <ComboBox fx:id="comboEstado"      styleClass="filter-select" prefWidth="155" promptText="Cualquier estado"/>
         <Label text="Agente:" styleClass="filter-label"/>
-        <ComboBox fx:id="comboAgente"      styleClass="filter-select" prefWidth="180"/>
+        <ComboBox fx:id="comboAgente"      styleClass="filter-select" prefWidth="175" promptText="Todos los agentes"/>
     </HBox>
 
     <!-- ══ RESULTADOS ════════════════════════════════════════════════════════ -->

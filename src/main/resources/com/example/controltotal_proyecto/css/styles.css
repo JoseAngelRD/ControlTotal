@@ -258,17 +258,84 @@
 .filter-chip:selected { -fx-background-color: rgba(0,184,148,0.12); -fx-border-color: #00b894; -fx-text-fill: #00b894; }
 
 .filter-select {
-    -fx-background-color: #1e2333; -fx-border-color: #2a3050;
-    -fx-border-width: 1px; -fx-border-radius: 8px; -fx-background-radius: 8px;
-    -fx-text-fill: #b4c5d6; -fx-font-size: 14px; -fx-font-weight: bold;
-    -fx-padding: 5 8 5 8; -fx-cursor: hand;
-    -fx-pref-width: 0; -fx-min-width: 80px;
+    /* Marco exterior del combo */
+    -fx-background-color: #1e2333;
+    -fx-border-color: #2a3050;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-min-width: 80px;
 }
-.filter-select:focused { -fx-border-color: #00b894; }
-.filter-select > .combo-box-button-cell { -fx-text-overrun: CLIP; }
-.filter-select .list-view  { -fx-background-color: #1e2333; -fx-border-color: #323a58; -fx-border-radius: 8px; -fx-background-radius: 8px; }
-.filter-select .list-cell  { -fx-background-color: transparent; -fx-text-fill: #ffffff; -fx-padding: 7 12 7 12; -fx-font-weight: bold; }
-.filter-select .list-cell:hover { -fx-background-color: #252b3d; }
+.filter-select:focused {
+    -fx-border-color: #00b894;
+}
+
+/* Zona izquierda donde aparece el valor — fondo oscuro, sin verde */
+.filter-select > .combo-box-button-cell {
+    -fx-background-color: #1e2333;
+    -fx-padding: 4 6 4 10;
+}
+.filter-select > .combo-box-button-cell > .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-color: transparent;
+}
+/* Neutralizar :selected en la button-cell (causa el fondo verde) */
+.filter-select > .combo-box-button-cell:selected {
+    -fx-background-color: #1e2333;
+}
+.filter-select > .combo-box-button-cell:selected > .label {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: transparent;
+}
+/* Neutralizar :focused dentro de la button-cell */
+.filter-select > .combo-box-button-cell:focused {
+    -fx-background-color: #1e2333;
+}
+
+/* Flecha del desplegable */
+.filter-select > .arrow-button {
+    -fx-background-color: #1e2333;
+    -fx-padding: 4 8 4 4;
+}
+.filter-select > .arrow-button > .arrow {
+    -fx-background-color: #6b7a99;
+}
+.filter-select:hover > .arrow-button > .arrow {
+    -fx-background-color: #b4c5d6;
+}
+
+/* Lista desplegada */
+.filter-select .list-view {
+    -fx-background-color: #1a1f30;
+    -fx-border-color: #323a58;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.40), 10, 0, 0, 4);
+}
+.filter-select .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #d0dae8;
+    -fx-padding: 8 14 8 14;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+.filter-select .list-cell:hover {
+    -fx-background-color: #252b3d;
+    -fx-text-fill: #ffffff;
+}
+.filter-select .list-cell:selected {
+    -fx-background-color: rgba(0,184,148,0.18);
+    -fx-text-fill: #00b894;
+}
+.filter-select .list-cell:selected:hover {
+    -fx-background-color: rgba(0,184,148,0.28);
+    -fx-text-fill: #00b894;
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    TABLA
