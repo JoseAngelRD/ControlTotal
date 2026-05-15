@@ -296,6 +296,8 @@ public class EmpresaFormController implements Initializable {
         String rutaAntigua = null;
         String rutaNueva = null;
 
+        Empresa e = empresaEditar != null ? empresaEditar : new Empresa();
+
         if (empresaEditar != null) {
             String nombreViejo = empresaEditar.getDenominacionSocial();
             String formaVieja = empresaEditar.getFormaSocial();
@@ -306,11 +308,21 @@ public class EmpresaFormController implements Initializable {
                 rutaAntigua = construirRuta(estadoViejo, nombreViejo, formaVieja);
                 rutaNueva = construirRuta(esActivo, nombreNuevo, formaNueva);
                 requiereMoverCarpeta = true;
+
+                //actualizo a rutas nuevas
+                String rutaNuevaCopia = rutaNueva;
+
+                System.out.println("0-> "+ rutaNuevaCopia);
+                rutaNuevaCopia = rutaNuevaCopia.replace("/", "\\");
+                System.out.println("1-> "+ rutaNuevaCopia);
+                e.setRutaDocumental(rutaNuevaCopia);
+                e.setRutaCertElectronico(rutaNuevaCopia+"\\Archivos Permanentes\\Cert. Electrónico/");
+                e.setRutaLog(rutaNuevaCopia+"\\Log");
             }
         }
 
         // --- 2. ASIGNACIÓN DE DATOS ---
-        Empresa e = empresaEditar != null ? empresaEditar : new Empresa();
+
         e.setNifCif(txtNifCif.getText().trim());
         e.setDenominacionSocial(nombreNuevo);
         e.setFormaSocial(formaNueva);
