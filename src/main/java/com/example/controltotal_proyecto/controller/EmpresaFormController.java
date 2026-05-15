@@ -312,11 +312,9 @@ public class EmpresaFormController implements Initializable {
                 //actualizo a rutas nuevas
                 String rutaNuevaCopia = rutaNueva;
 
-                System.out.println("0-> "+ rutaNuevaCopia);
                 rutaNuevaCopia = rutaNuevaCopia.replace("/", "\\");
-                System.out.println("1-> "+ rutaNuevaCopia);
                 e.setRutaDocumental(rutaNuevaCopia);
-                e.setRutaCertElectronico(rutaNuevaCopia+"\\Archivos Permanentes\\Cert. Electrónico/");
+                e.setRutaCertElectronico(rutaNuevaCopia+"\\Archivos Permanentes\\Cert. Electrónico");
                 e.setRutaLog(rutaNuevaCopia+"\\Log");
             }
         }

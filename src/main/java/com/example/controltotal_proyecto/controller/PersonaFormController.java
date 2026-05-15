@@ -1,5 +1,6 @@
 package com.example.controltotal_proyecto.controller;
 
+import com.example.controltotal_proyecto.entities.Empresa;
 import com.example.controltotal_proyecto.entities.Persona;
 import com.example.controltotal_proyecto.service.PersonaService;
 import com.example.controltotal_proyecto.util.AlertaUtil;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
@@ -46,6 +48,9 @@ public class PersonaFormController implements Initializable {
     private Persona              personaEditar;
     private Consumer<Persona>    callback;
     private Runnable             closeAction;   // ← NUEVO: acción de cierre inline
+
+    // --- Servicios ------------------------------------------------------------
+    private final PersonaService perService = new PersonaService();
 
     // ─── Init ─────────────────────────────────────────────────────────────────
 
@@ -139,31 +144,46 @@ public class PersonaFormController implements Initializable {
     @FXML private void onGuardar() {
         if (!validar()) return;
 
-        boolean esActivo     = "Activo".equals(comboEstado.getValue());
-        String  nombreNuevo  = txtNombre.getText().trim();
-        String  apellidosNuevo = txtApellidos.getText().trim();
+        boolean esActivo = "Activo".equals(comboEstado.getValue());
+        String nombreNuevo = txtNombre.getText().trim();
+        String apellidosNuevo = txtApellidos.getText().trim();
 
         // 1. Detectar cambios de ruta ANTES de modificar el objeto
         boolean requiereMoverCarpeta = false;
-        String  rutaAntigua = null;
-        String  rutaNueva   = null;
+        String rutaAntigua = null;
+        String rutaNueva = null;
+
+        Persona p = personaEditar != null ? personaEditar : new Persona();
 
         if (personaEditar != null) {
-            String  nombreViejo    = personaEditar.getNombre();
-            String  apellidosViejo = personaEditar.getApellidos();
-            boolean estadoViejo    = personaEditar.isActivo();
+            String nombreViejo = personaEditar.getNombre();
+            String apellidosViejo = personaEditar.getApellidos();
+            boolean estadoViejo = personaEditar.isActivo();
 
-            if (estadoViejo != esActivo
-                    || !nombreViejo.equals(nombreNuevo)
-                    || !apellidosViejo.equals(apellidosNuevo)) {
+            // Si cambia el estado, el nombre o la forma social, la ruta de la carpeta cambia.
+            if (estadoViejo != esActivo || !nombreViejo.equals(nombreNuevo) || !apellidosViejo.equals(apellidosNuevo)) {
                 rutaAntigua = construirRuta(estadoViejo, nombreViejo, apellidosViejo);
-                rutaNueva   = construirRuta(esActivo,    nombreNuevo, apellidosNuevo);
+                rutaNueva = construirRuta(esActivo, nombreNuevo, apellidosNuevo);
                 requiereMoverCarpeta = true;
+
+                String rutaNuevaCopia = rutaNueva;
+
+                rutaNuevaCopia = rutaNuevaCopia.replace("/", "\\");
+                p.setRutaDocumental(rutaNuevaCopia);
+                p.setRutaCertElectronico(rutaNuevaCopia+"\\Certificado Electrónico");
+                p.setRutaLog(rutaNuevaCopia+"\\Log");
             }
         }
 
         // 2. Asignación de datos
-        Persona p = personaEditar != null ? personaEditar : new Persona();
+        String strNif = txtNif.getText();
+
+        // Comprobamos que la longitud del DNI o NIE sea la apropiada
+        if (strNif.length() != 9) {
+            mostrarAlerta("El DNI o NIE introducido no es de la longitud apropiada.");
+            return;
+        }
+
         p.setNif(txtNif.getText().trim());
         p.setNombre(nombreNuevo);
         p.setApellidos(apellidosNuevo);
@@ -205,9 +225,27 @@ public class PersonaFormController implements Initializable {
     // ─── Validación ───────────────────────────────────────────────────────────
 
     private boolean validar() {
-        if (txtNif.getText().isBlank())       { mostrarReq("NIF");       return false; }
+        if (txtNif.getText().isBlank())        { mostrarReq("NIF");       return false; }
         if (txtNombre.getText().isBlank())     { mostrarReq("Nombre");    return false; }
         if (txtApellidos.getText().isBlank())  { mostrarReq("Apellidos"); return false; }
+        if (txtNif.getText().length() != 9)    { mostrarAlerta("El DNI o NIE" +
+                                 " introducido no es de la longitud apropiada."); return false; }
+
+        String nombre = txtNombre.getText();
+        String apellidos = txtApellidos.getText();
+
+        List<Persona> todasLasPersonas = perService.obtenerTodas();
+        if (todasLasPersonas != null) {
+            for (Persona per : todasLasPersonas) {
+                // Comparamos ignorando mayúsculas/minúsculas para mayor seguridad
+                if (per.getNombre().equalsIgnoreCase(nombre) && per.getApellidos().equalsIgnoreCase(apellidos)) {
+                    mostrarAlerta("Ya existe una persona con nombre y apellidos idénticos. Por motivos" +
+                                           " de cohesión, por ahora es imposible dar de alta a esta persona.");
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
