@@ -411,7 +411,7 @@ public class EmpresaFormController implements Initializable {
             return false;
         }
 
-        // --- Denominación Social Única ---
+        // --- Denominación Social y Abreviatura Única ---
         List<Empresa> todasLasEmpresas = empService.obtenerTodas();
         if (todasLasEmpresas != null) {
             for (Empresa emp : todasLasEmpresas) {
@@ -427,6 +427,22 @@ public class EmpresaFormController implements Initializable {
                 }
             }
         }
+
+        String abreviaturaActual = txtAbreviatura.getText().trim();
+        if (abreviaturaActual.isBlank())  {
+            mostrarReq("Abreviatura");
+            return false;
+        }
+
+        if (todasLasEmpresas != null) {
+            for (Empresa emp : todasLasEmpresas) {
+                if (emp.getAbreviatura().equalsIgnoreCase(abreviaturaActual)) {
+                    mostrarAlerta("Ya existe una empresa con esa misma abreviatura");
+                    return false;
+                }
+            }
+        }
+
         if (comboFormaSocial.getValue() == null)  { mostrarReq("Forma Social");        return false; }
 
         // Abreviatura: obligatoria, no se auto-genera si está vacía
