@@ -664,3 +664,49 @@
 /* misc */
 .text-muted { -fx-text-fill: #8b9bb4; -fx-font-size: 14px; -fx-font-weight: bold; }
 
+/* ── Botón morado "Ver Personas" en tarjeta de empresa -> VER PERSONAS DESDE EMPRESA. NUEVO ─────────────────── */
+.btn-card-personas {
+    -fx-background-color: rgba(139,92,246,0.15);
+    -fx-text-fill: #a78bfa;
+    -fx-background-radius: 7;
+    -fx-border-color: rgba(139,92,246,0.40);
+    -fx-border-radius: 7;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 7 16 7 16;
+}
+.btn-card-personas:hover {
+    -fx-background-color: rgba(139,92,246,0.28);
+    -fx-border-color: #a78bfa;
+    -fx-text-fill: #c4b5fd;
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.35), 8, 0, 0, 0);
+}
+
+/* ── Tarjeta de persona dentro del panel "Ver Personas" ────────────────── */
+/*    Hereda .empresa-card y añade sutil acento morado en el borde          */
+.persona-card-en-empresa {
+    -fx-border-color: #2a1f47;
+}
+.persona-card-en-empresa:hover {
+    -fx-border-color: rgba(139,92,246,0.40);
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.18), 12, 0, 0, 3);
+}
+
+/* ── Contador "N personas asociadas" ───────────────────────────────────── */
+.personas-contador {
+    -fx-text-fill: #8b9bb4;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 4 2;
+}
+
+/* ── Mensaje vacío dentro del panel "Ver Personas" ─────────────────────── */
+.personas-empty-hint {
+    -fx-text-fill: #8b9bb4;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-padding: 60 20 60 20;
+    -fx-alignment: center;
+}

@@ -436,7 +436,7 @@ public class EmpresaFormController implements Initializable {
 
         if (todasLasEmpresas != null) {
             for (Empresa emp : todasLasEmpresas) {
-                if (emp.getAbreviatura().equalsIgnoreCase(abreviaturaActual)) {
+                if (emp.getAbreviatura().equalsIgnoreCase(abreviaturaActual) && !emp.getNifCif().equals(cif)) {
                     mostrarAlerta("Ya existe una empresa con esa misma abreviatura");
                     return false;
                 }
