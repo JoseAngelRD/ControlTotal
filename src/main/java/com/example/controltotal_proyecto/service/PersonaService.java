@@ -79,14 +79,14 @@ public class PersonaService {
         Persona p = obtenerPorNif(personaNif);
         List<Empresa> empresas = obtenerEmpresasDePersona(personaNif);
         boolean hayActiva = empresas.stream().anyMatch(Empresa::isActivo);
+        boolean nuevoEstado = !empresas.isEmpty() && hayActiva;
 
         // Mueve la carpeta
         // Si la persona se queda sin empresa (fallos posibles para actualizar la ruta) y la persona es activa
         // O si sus empresas pasan todas a pasivo y la persona es activa
         // O si se le asigna empresa activa y la persona es pasiva
         // cambian las carpetas y su estado
-        if (empresas.isEmpty() && p.isActivo() || !hayActiva && p.isActivo() || hayActiva && !p.isActivo())
-            moverCarpetaFisica(personaNif);
+        moverCarpetaFisica(personaNif, nuevoEstado);
 
         // Se actualiza el estado de la persona en dos casos
         if (empresas.isEmpty()) {
@@ -111,22 +111,21 @@ public class PersonaService {
         }
     }
 
-    // Funciona antes de cambiar el estado en la persona (Está en activo y se cambia a pasivo, esto se invoca antes de que pase a pasivo)
-    public void moverCarpetaFisica(String personaNif) throws IOException {
+    // Se introduce el nif y el nuevo estado de la persona
+    public void moverCarpetaFisica(String personaNif, boolean nuevoEstado) throws IOException {
         Persona p = obtenerPorNif(personaNif);
-        boolean estadoBool = p.isActivo();
+        boolean estadoViejo = p.isActivo();
         String estado;
 
-        // Calcula el recíproco
-        if (estadoBool)
-            estado = "Pasivo";
-        else
-            estado = "Activo";
+        estado = (nuevoEstado ? "Activo" : "Pasivo");
 
         String nombreCompl = p.getNombreCompleto();
 
+        if (estadoViejo == nuevoEstado)
+            System.out.println("ALGO HA SALIDO VERDADERAMENTE MAL");
+
         // Ruta antigua
-        String rutaAntigua = INICIO_RUTA + (estadoBool ? "Activo" : "Pasivo") + "/Personas/" + nombreCompl;
+        String rutaAntigua = INICIO_RUTA + (estadoViejo ? "Activo" : "Pasivo") + "/Personas/" + nombreCompl;
 
         // Calcular ruta nueva
         String rutaNueva = INICIO_RUTA + estado + "/Personas/" + nombreCompl;
