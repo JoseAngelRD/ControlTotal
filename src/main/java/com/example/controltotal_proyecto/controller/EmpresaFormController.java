@@ -361,6 +361,14 @@ public class EmpresaFormController implements Initializable {
                 for (Persona pBD : actualesBD) {
                     if (!nifsNuevos.contains(pBD.getNif())) {
                         empService.desvincularPersona(e.getNifCif(), pBD.getNif());
+                        try {
+                            perService.recalcularEstado(pBD.getNif());
+                            // No me preguntéis por qué pongo recalcular estado aquí también
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                            mostrarAlerta("Se guardó la persona asociada en base de datos, pero hubo un error al mover la carpeta de archivos.\n" +
+                                    "Por favor, muévela manualmente.");
+                        }
                     }
                 }
             }
@@ -368,7 +376,7 @@ public class EmpresaFormController implements Initializable {
 
         // --- 4. ACCIONES POST-GUARDADO ---
         if (ok) {
-            // Si todo fue bien en BD y se requiere mover la carpeta, lo hacemos ahora:
+            // Si fue bien en BD y se requiere mover la carpeta, lo hacemos ahora:
             if (requiereMoverCarpeta && rutaAntigua != null && rutaNueva != null) {
                 moverCarpetaFisica(rutaAntigua, rutaNueva);
             }
@@ -378,6 +386,21 @@ public class EmpresaFormController implements Initializable {
         } else {
             mostrarAlerta("No se pudo guardar la empresa. Revisa los datos.");
         }
+
+        // --- 4.1. EDITAR ESTADO DE PERSONAS ASOCIADAS ---
+
+        List<Persona> personasAsociadas = empService.getPersonas(e.getNifCif());
+        for(Persona p: personasAsociadas) {
+            // Recalcular el estado (cambiar la ruta en la bd y la carpeta de lugar)
+            try {
+                perService.recalcularEstado(p.getNif());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                mostrarAlerta("Se guardó la persona en base de datos, pero hubo un error al mover la carpeta de archivos.\n" +
+                        "Por favor, muévela manualmente.");
+            }
+        }
+
     }
 
     @FXML private void onCancelar() { cerrar(); }
@@ -436,7 +459,7 @@ public class EmpresaFormController implements Initializable {
 
         if (todasLasEmpresas != null) {
             for (Empresa emp : todasLasEmpresas) {
-                if (emp.getAbreviatura().equalsIgnoreCase(abreviaturaActual) && !emp.getNifCif().equals(cif)) {
+                if (emp.getAbreviatura().equalsIgnoreCase(abreviaturaActual) && !emp.getNifCif().equalsIgnoreCase(cif)) {
                     mostrarAlerta("Ya existe una empresa con esa misma abreviatura");
                     return false;
                 }

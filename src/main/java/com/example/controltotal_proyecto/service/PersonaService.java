@@ -5,6 +5,11 @@ import com.example.controltotal_proyecto.entities.Empresa;
 import com.example.controltotal_proyecto.entities.Persona;
 import com.example.controltotal_proyecto.util.Directorios;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +17,9 @@ import java.util.stream.Collectors;
  * Capa de servicio para Persona.
  */
 public class PersonaService {
+
+    // --- Inicio de la ruta para construir su recíproco ------------------------
+    private static final String INICIO_RUTA = "C:/Control_Total/";   // Y:/DocumOfi/
 
     // ─── Consultas ────────────────────────────────────────────────────────────
 
@@ -67,15 +75,71 @@ public class PersonaService {
      * Recalcula el estado de una persona: si todas sus empresas vinculadas
      * están en pasivo, la persona pasa a Inactivo.
      */
-    public void recalcularEstado(String personaNif) {
-        List<Empresa> empresas = obtenerEmpresasDePersona(personaNif);
-        if (empresas.isEmpty()) return;
-
-        boolean hayActiva = empresas.stream().anyMatch(Empresa::isActivo);
+    public void recalcularEstado(String personaNif) throws IOException {
         Persona p = obtenerPorNif(personaNif);
+        List<Empresa> empresas = obtenerEmpresasDePersona(personaNif);
+        boolean hayActiva = empresas.stream().anyMatch(Empresa::isActivo);
+
+        // Mueve la carpeta
+        // Si la persona se queda sin empresa (fallos posibles para actualizar la ruta) y la persona es activa
+        // O si sus empresas pasan todas a pasivo y la persona es activa
+        // O si se le asigna empresa activa y la persona es pasiva
+        // cambian las carpetas y su estado
+        if (empresas.isEmpty() && p.isActivo() || !hayActiva && p.isActivo() || hayActiva && !p.isActivo())
+            moverCarpetaFisica(personaNif);
+
+        // Se actualiza el estado de la persona en dos casos
+        if (empresas.isEmpty()) {
+            p.setActivo(false);
+            actualizar(p);
+            return;
+        }
+
         if (p != null) {
             p.setActivo(hayActiva);
             actualizar(p);
         }
     }
+
+    // Sobrecargado para que funcione calculando la ruta recíproca
+    public void moverCarpetaFisica(String rutaOrigen, String rutaDestino) throws IOException {
+        Path origen  = Paths.get(rutaOrigen);
+        Path destino = Paths.get(rutaDestino);
+        if (Files.exists(origen) && !rutaOrigen.equals(rutaDestino)) {
+            Files.createDirectories(destino.getParent());
+            Files.move(origen, destino, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    // Funciona antes de cambiar el estado en la persona (Está en activo y se cambia a pasivo, esto se invoca antes de que pase a pasivo)
+    public void moverCarpetaFisica(String personaNif) throws IOException {
+        Persona p = obtenerPorNif(personaNif);
+        boolean estadoBool = p.isActivo();
+        String estado;
+
+        // Calcula el recíproco
+        if (estadoBool)
+            estado = "Pasivo";
+        else
+            estado = "Activo";
+
+        String nombreCompl = p.getNombreCompleto();
+
+        // Ruta antigua
+        String rutaAntigua = INICIO_RUTA + (estadoBool ? "Activo" : "Pasivo") + "/Personas/" + nombreCompl;
+
+        // Calcular ruta nueva
+        String rutaNueva = INICIO_RUTA + estado + "/Personas/" + nombreCompl;
+
+        String rutaNuevaCopia = rutaNueva;
+
+        // Cambiar rutas documental, certificado electrónico y log
+        rutaNuevaCopia = rutaNuevaCopia.replace("/", "\\");
+        p.setRutaDocumental(rutaNuevaCopia);
+        p.setRutaCertElectronico(rutaNuevaCopia+"\\Certificado Electrónico");
+        p.setRutaLog(rutaNuevaCopia+"\\Log");
+
+        moverCarpetaFisica(rutaAntigua, rutaNueva);
+    }
+
 }

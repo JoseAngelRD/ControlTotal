@@ -121,8 +121,9 @@ public class PersonaFormController implements Initializable {
         }
     }
 
-    // ─── Mover carpeta física ─────────────────────────────────────────────────
+    // ─── Mover carpeta física (REALOJADO EN PERSONASERVICE) ───────────────────
 
+    /*
     private void moverCarpetaFisica(String rutaOrigen, String rutaDestino) {
         Path origen  = Paths.get(rutaOrigen);
         Path destino = Paths.get(rutaDestino);
@@ -139,13 +140,14 @@ public class PersonaFormController implements Initializable {
             }
         }
     }
+    */
 
     // ─── Guardar ──────────────────────────────────────────────────────────────
 
     @FXML private void onGuardar() {
         if (!validar()) return;
 
-        boolean esActivo = "Activo".equals(comboEstado.getValue());
+        boolean esActivo = "Activo".equals(comboEstado.getValue()); // Cambiar
         String nombreNuevo = txtNombre.getText().trim();
         String apellidosNuevo = txtApellidos.getText().trim();
 
@@ -177,20 +179,12 @@ public class PersonaFormController implements Initializable {
         }
 
         // 2. Asignación de datos
-        String strNif = txtNif.getText();
-
-        // Comprobamos que la longitud del DNI o NIE sea la apropiada
-        if (strNif.length() != 9) {
-            mostrarAlerta("El DNI o NIE introducido no es de la longitud apropiada.");
-            return;
-        }
-
         p.setNif(txtNif.getText().trim());
         p.setNombre(nombreNuevo);
         p.setApellidos(apellidosNuevo);
         p.setContactoMovil(txtMovil.getText().trim());
         p.setContactoMail(txtEmail.getText().trim());
-        p.setActivo(esActivo);
+        p.setActivo(false);
 
         // 3. Guardado en base de datos
         boolean ok = personaEditar == null ? service.crear(p) : service.actualizar(p);
@@ -198,7 +192,16 @@ public class PersonaFormController implements Initializable {
         // 4. Acciones post-guardado
         if (ok) {
             if (requiereMoverCarpeta && rutaAntigua != null && rutaNueva != null) {
-                moverCarpetaFisica(rutaAntigua, rutaNueva);
+                //moverCarpetaFisica(rutaAntigua, rutaNueva);
+                try {
+                    perService.moverCarpetaFisica(rutaAntigua, rutaNueva);
+                } catch(IOException ex) {
+                    ex.printStackTrace();
+                    mostrarAlerta(
+                            "Se guardó la persona en base de datos, pero hubo un error al mover la carpeta.\n" +
+                                    "Por favor, muévela manualmente de:\n" + rutaAntigua + "\na:\n" + rutaNueva
+                    );
+                }
             }
             if (callback != null) callback.accept(p);
             cerrar();
